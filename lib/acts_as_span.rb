@@ -17,7 +17,6 @@ module ActsAsSpan
         :end_date_field => :end_date,
         :start_date_field_required => false,
         :end_date_field_required => false,
-        :exclude_end => false,
         :span_overlap_scope => nil,
         :span_overlap_count => nil,
         :name => :default
@@ -69,12 +68,12 @@ module ActsAsSpan
   end
   
   module Scopes
-    def overlap(record)
-      overlap_for(:default, record)
+    def overlap(test_record)
+      overlap_for(test_record, :default, :default)
     end
     
-    def overlap_for(name, record)
-      record.span_for(name).overlap
+    def overlap_for(test_record, test_record_span_name = :default, this_span_name = :default)
+      test_record.span_for(test_record_span_name).overlap(self, this_span_name)
     end
   end
   
@@ -96,13 +95,17 @@ module ActsAsSpan
     end
     
     def validate_spans
-      spans.each(&:validate_span)
+      spans.each(&:validate)
     end
     
-    #NOTE: This uses the default span.
-    #  To check a specific span, use record.span_for(:something).overlap?(other_record.span_for(:something_else))
+    #This syntax assumes :default span
     def overlap?(other_record)
-      span.overlap?(other_record.span)
+      overlap_for?(other_record, :default, :default)
+    end
+    
+    #record.span_for(:this_span_name).overlap?(other_record.span_for(:other_record_span_name))
+    def overlap_for?(other_record, this_span_name = :default, other_record_span_name = :default)
+      span_for(this_span_name).overlap?(other_record.span_for(other_record_span_name))
     end
   end
   
