@@ -1,0 +1,33 @@
+= acts_as_span
+
+ActiveRecord model w/ a start_date and an end_date
+
+== Getting Started
+
+In your Gemfile:
+
+    gem "appraisal"
+
+In your model:
+
+    class SpanRecord < ActiveRecord::Base
+      acts_as_span
+    end
+
+In your migrations:
+
+    class AddSpanToSpanRecord < ActiveRecord::Migration
+      def self.up
+        add_column :span_records, :start_date, :date
+        add_column :span_records, :end_date, :date
+      end
+
+      def self.down
+        remove_column :span_records, :start_date
+        remove_column :span_records, :end_date
+      end
+    end
+
+== Copyright
+
+Copyright (c) 2011 Annkissam. See LICENSE for details.
