@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = ActsAsSpan::VERSION::STRING
   s.authors     = ["Eric Sullivan"]
   s.email       = ["eric.sullivan@annkissam.com"]
-  s.homepage    = "www.annkissam.com"
+  s.homepage    = "https://github.com/annkissam/acts_as_span"
   s.summary     = ActsAsSpan::VERSION::SUMMARY
   s.description = %q{start_date and end_date as a span w/ ActiveRecord}
 
