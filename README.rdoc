@@ -6,7 +6,7 @@ ActiveRecord model w/ a start_date and an end_date
 
 In your Gemfile:
 
-    gem "appraisal"
+    gem "acts_as_span"
 
 In your model:
 
