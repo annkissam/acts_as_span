@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ["eric.sullivan@annkissam.com"]
   s.homepage    = "www.annkissam.com"
   s.summary     = ActsAsSpan::VERSION::SUMMARY
-  s.description = %q{handles records w/ a start_date and an end_date as a span}
+  s.description = %q{start_date and end_date as a span w/ ActiveRecord}
 
   s.rubyforge_project = "acts_as_span"
 
