@@ -7,7 +7,7 @@ describe "acts_as_span" do
     end
   end
   
-  context "SpanModel (Class)" do
+  context "ClassMethods" do
     it "should return true for acts_as_span?" do
       SpanModel.acts_as_span?.should be_true
     end
@@ -28,33 +28,37 @@ describe "acts_as_span" do
       span_definition.span_overlap_count.should be_nil
       span_definition.name.should == :default
     end
+    
+    it "should return a SpanKlass w/ span" do
+      SpanModel.span.should be_instance_of(ActsAsSpan::SpanKlass)
+    end
+
+    it "should return a SpanKlass w/ span_for(:default)" do
+      SpanModel.span_for(:default).should be_instance_of(ActsAsSpan::SpanKlass)
+    end
+    
+    it "should have (1) spans" do
+      SpanModel.spans.should have(1).span
+    end
   end
   
-  context "SpanModel (Instance)" do
+  context "InstanceMethods" do
     let(:span_model) { SpanModel.new }
     
     it "should return true for acts_as_span?" do
       span_model.acts_as_span?.should be_true
     end
-    
-    #it "should have 1 acts_as_span_instance" do
-    #  span_model.should have(1).acts_as_span_instances
-    #end
 
-    it "should return a Span w/ span" do
-      span_model.span.should be_instance_of(ActsAsSpan::Span)
+    it "should return a SpanInstance w/ span" do
+      span_model.span.should be_instance_of(ActsAsSpan::SpanInstance)
     end
 
-    it "should return a Span w/ span_for(:default)" do
-      span_model.span_for(:default).should be_instance_of(ActsAsSpan::Span)
+    it "should return a SpanInstance w/ span_for(:default)" do
+      span_model.span_for(:default).should be_instance_of(ActsAsSpan::SpanInstance)
     end
     
     it "should have (1) spans" do
       span_model.spans.should have(1).span
     end
-    
-    #NOTE: This is (indirectly) tested in span/validate_span
-    #it "should validate_spans" do
-    #end
   end
 end

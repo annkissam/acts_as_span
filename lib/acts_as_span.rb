@@ -5,7 +5,8 @@ require 'forwardable'
 ACTS_AS_SPAN_PATH = File.dirname(__FILE__) + "/acts_as_span/"
 
 require ACTS_AS_SPAN_PATH + 'version'
-require ACTS_AS_SPAN_PATH + 'span'
+require ACTS_AS_SPAN_PATH + 'span_klass'
+require ACTS_AS_SPAN_PATH + 'span_instance'
 
 module ActsAsSpan
   extend ActiveSupport::Concern
@@ -42,7 +43,7 @@ module ActsAsSpan
       
       self.send(:extend, Forwardable)
       
-      self.send(:extend, ActsAsSpan::Scopes)
+      self.send(:extend, ActsAsSpan::ExtendedClassMethods)
       self.send(:include, ActsAsSpan::IncludedInstanceMethods)
       
       options = OpenStruct.new(args.last.is_a?(Hash) ? ActsAsSpan.options.merge(args.pop) : ActsAsSpan.options)
@@ -57,8 +58,27 @@ module ActsAsSpan
                             :span_status,
                             :span_status_on,
                             :span_status_to_s,
-                            :span_status_to_s_on
+                            :span_status_to_s_on,
+                            :current?,
+                            :current_on?,
+                            :future?,
+                            :future_on?,
+                            :expired?,
+                            :expired_on?
                             
+      def_delegators 'self.class', :acts_as_span_definitions
+      
+      class << self
+        self.send(:extend, Forwardable)
+        
+        def_delegators :span, :current,
+                              :current_on,
+                              :future,
+                              :future_on,
+                              :expired,
+                              :expired_on
+      end
+      
       validate :validate_spans
     end
     
@@ -67,31 +87,47 @@ module ActsAsSpan
     end
   end
   
-  module Scopes
+  module ExtendedClassMethods
     def overlap(test_record)
       overlap_for(test_record, :default, :default)
     end
     
     def overlap_for(test_record, test_record_span_name = :default, this_span_name = :default)
-      test_record.span_for(test_record_span_name).overlap(self, this_span_name)
+      span_for(this_span_name).overlap(test_record.span_for(test_record_span_name))
     end
-  end
-  
-  module IncludedInstanceMethods
+    
+    def spans
+      acts_as_span_definitions.keys.map { |acts_as_span_definition_name| span_for(acts_as_span_definition_name) }
+    end
+    
     def span
       span_for(:default)
     end
     
     def span_for(name = :default)
-      acts_as_span_instances[name] ||= Span.new(name, self, self.class.acts_as_span_definitions[name])
+      acts_as_span_klasses[name] ||= SpanKlass.new(name, self, acts_as_span_definitions[name])
+    end
+    
+    def acts_as_span_klasses
+      @_acts_as_span_klasses ||= {}
+    end
+  end
+  
+  module IncludedInstanceMethods
+    def spans
+      acts_as_span_definitions.keys.map { |acts_as_span_definition_name| span_for(acts_as_span_definition_name) }
+    end
+    
+    def span
+      span_for(:default)
+    end
+    
+    def span_for(name = :default)
+      acts_as_span_instances[name] ||= SpanInstance.new(name, self, acts_as_span_definitions[name])
     end
     
     def acts_as_span_instances
       @_acts_as_span_instances ||= {}
-    end
-    
-    def spans
-      self.class.acts_as_span_definitions.keys.map { |acts_as_span_definition| span_for(acts_as_span_definition) }
     end
     
     def validate_spans

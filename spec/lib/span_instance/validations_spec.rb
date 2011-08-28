@@ -37,7 +37,7 @@ describe "Span" do
     end
     
     it "should require an end_date" do
-      span_model = SpanModel.new(:start_date => Date.today, :end_date => nil)
+     span_model = SpanModel.new(:start_date => Date.today, :end_date => nil)
       
       span_model.should_not be_valid
       span_model.errors[:end_date].should have(1).error

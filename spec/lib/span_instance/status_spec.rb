@@ -46,14 +46,4 @@ describe "Span" do
       span.span_status_to_s.should == 'Expired'
     end
   end
-  
-  context "#close!" do
-    it "should set end_date? to today" do
-      lambda { span.close! }.should change(span_model, :end_date).from(nil).to(Date.today)
-    end
-    
-    it "should set end_date? to the parameter" do
-      lambda { span.close_on!(Date.today + 1.day) }.should change(span_model, :end_date).from(nil).to(Date.today + 1.day)
-    end
-  end
 end

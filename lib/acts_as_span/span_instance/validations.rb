@@ -1,7 +1,7 @@
 require 'active_support'
 
 module ActsAsSpan
-  class Span
+  class SpanInstance
     module Validations
       extend ActiveSupport::Concern
       
@@ -43,7 +43,7 @@ module ActsAsSpan
               conditions[span_overlap_scope] = span_model.send(span_overlap_scope)
             end
 
-            records = overlap(span_klass, name).where(conditions)
+            records = span_klass.span_for(name).overlap(self).where(conditions)
 
             if span_klass.respond_to?('not_archived')
               records.not_archived
@@ -57,7 +57,7 @@ module ActsAsSpan
             #end
 
             if records.count > span_overlap_count
-              span_model.errors.add(:base, "date range overlaps with #{records.count} other record(s)\n#{overlap.to_sql}")
+              span_model.errors.add(:base, "date range overlaps with #{records.count} other record(s)")
             end
           end
         end
