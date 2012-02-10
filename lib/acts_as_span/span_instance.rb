@@ -1,8 +1,6 @@
-require 'forwardable'
-
-require ACTS_AS_SPAN_PATH + 'span_instance/validations'
-require ACTS_AS_SPAN_PATH + 'span_instance/status'
-require ACTS_AS_SPAN_PATH + 'span_instance/overlap'
+require 'acts_as_span/span_instance/validations'
+require 'acts_as_span/span_instance/status'
+require 'acts_as_span/span_instance/overlap'
 
 module ActsAsSpan
   class SpanInstance

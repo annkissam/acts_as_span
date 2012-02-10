@@ -2,11 +2,9 @@ require 'active_support'
 require 'ostruct'
 require 'forwardable'
 
-ACTS_AS_SPAN_PATH = File.dirname(__FILE__) + "/acts_as_span/"
-
-require ACTS_AS_SPAN_PATH + 'version'
-require ACTS_AS_SPAN_PATH + 'span_klass'
-require ACTS_AS_SPAN_PATH + 'span_instance'
+require 'acts_as_span/version'
+require 'acts_as_span/span_klass'
+require 'acts_as_span/span_instance'
 
 module ActsAsSpan
   extend ActiveSupport::Concern

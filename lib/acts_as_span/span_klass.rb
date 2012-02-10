@@ -1,7 +1,5 @@
-require 'forwardable'
-
-require ACTS_AS_SPAN_PATH + 'span_klass/status'
-require ACTS_AS_SPAN_PATH + 'span_klass/overlap'
+require 'acts_as_span/span_klass/status'
+require 'acts_as_span/span_klass/overlap'
 
 module ActsAsSpan
   class SpanKlass

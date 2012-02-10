@@ -1,5 +1,3 @@
-require 'active_support'
-
 module ActsAsSpan
   class SpanInstance
     module Overlap
