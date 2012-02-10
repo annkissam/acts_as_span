@@ -1,6 +1,8 @@
 = acts_as_span
 
-ActiveRecord model w/ a start_date and an end_date
+ActiveRecord model w/ a start_date and an end_date == ActsAsSpan
+
+Treat those date spans like the objects they are!
 
 == Getting Started
 
@@ -14,20 +16,10 @@ In your model:
       acts_as_span
     end
 
-In your migrations:
+Handle your migrations:
 
-    class AddSpanToSpanRecord < ActiveRecord::Migration
-      def self.up
-        add_column :span_records, :start_date, :date
-        add_column :span_records, :end_date, :date
-      end
-
-      def self.down
-        remove_column :span_records, :start_date
-        remove_column :span_records, :end_date
-      end
-    end
+   rails g acts_as_span:update model_name
 
 == Copyright
 
-Copyright (c) 2011 Annkissam. See LICENSE for details.
+Copyright (c) 2011-2012 Annkissam. See LICENSE for details.
