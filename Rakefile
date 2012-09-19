@@ -5,7 +5,7 @@ require 'rake/gempackagetask'
 require 'spec/rake/spectask'
  
 GEM = "acts_as_span"
-GEM_VERSION = "0.0.1"
+GEM_VERSION = "0.0.2"
 SUMMARY = "Adds date range methods to ActiveRecord Models"
 AUTHOR = "Eric Sullivan"
 EMAIL = "eric.sullivan@annkissam.com"

@@ -7,7 +7,7 @@ describe "a basic model using acts_as_span" do
       date     :start_date
       date     :end_date
       
-      acts_as_span
+      acts_as_span :exclude_end => true
     end
   end
   
@@ -38,9 +38,9 @@ describe "a basic model using acts_as_span" do
         @span_model = SpanModel.create!(:start_date => Date.today - 1.day, :end_date => Date.today)
       end
       
-      it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+      it "should NOT be included in #current" do
+        SpanModel.current.should_not include(@span_model)
+        @span_model.current?.should be_false
       end
       
       it "should NOT be included in #future" do
@@ -48,9 +48,9 @@ describe "a basic model using acts_as_span" do
         @span_model.future?.should be_false
       end
       
-      it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+      it "should be included in #expired" do
+        SpanModel.expired.should include(@span_model)
+        @span_model.expired?.should be_true
       end
     end
     
@@ -206,9 +206,9 @@ describe "a basic model using acts_as_span" do
         @span_model = SpanModel.create!(:start_date => nil, :end_date => Date.today)
       end
       
-      it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+      it "should NOT be included in #current" do
+        SpanModel.current.should_not include(@span_model)
+        @span_model.current?.should be_false
       end
       
       it "should NOT be included in #future" do
@@ -216,9 +216,9 @@ describe "a basic model using acts_as_span" do
         @span_model.future?.should be_false
       end
       
-      it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+      it "should be included in #expired" do
+        SpanModel.expired.should include(@span_model)
+        @span_model.expired?.should be_true
       end
     end
     

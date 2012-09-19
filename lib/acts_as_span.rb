@@ -11,9 +11,16 @@ module ActsAsSpan
       defaults = { :start_date_field => :start_date,
                    :end_date_field => :end_date,
                    :start_date_field_required => false,
-                   :end_date_field_required => false }
+                   :end_date_field_required => false,
+                   :exclude_end => false }
       options = args.last.is_a?(Hash) ? defaults.merge(args.pop) : defaults
       #options.assert_valid_keys()
+      
+      #exclude_end = true   => expired if date == end_date
+      #exclude_end = false  => current if date == end_date
+      #             Synonym => expired_on_end_date, expire at BEGGINING of end_date
+      
+      #TODO: Support multiple spans on the same model... :prefix => 'pa'
 
       case args.length
       when 0
@@ -25,16 +32,19 @@ module ActsAsSpan
         raise ArgumentError, "Incorrect number of Arguements provided"
       end
       
-      #Make sure the columns exists...
-      raise ArgumentError, "Column '#{options[:start_date_field]}' does not exist" unless columns_hash[options[:start_date_field].to_s]
-      raise ArgumentError, "Column '#{options[:end_date_field]}' does not exist" unless columns_hash[options[:end_date_field].to_s]
-            
+      #Make sure the columns exists... But only if the table is already created...
+      if table_exists?
+        raise ArgumentError, "Column '#{options[:start_date_field]}' does not exist" unless columns_hash[options[:start_date_field].to_s]
+        raise ArgumentError, "Column '#{options[:end_date_field]}' does not exist" unless columns_hash[options[:end_date_field].to_s]
+      end
+      
       cattr_accessor :acts_as_span_options
       self.acts_as_span_options = options
       
       self.send(:include, ActsAsSpan::InstanceMethods)
       self.send(:include, ActsAsSpan::DateAsString)
       self.send(:include, ActsAsSpan::NamedScopes)
+      #self.send(:extend, ActsAsSpan::Scopes)
       self.send(:include, ActsAsSpan::Validations)
       
       self.send(:extend, ActsAsSpan::PositiveMethods)
@@ -45,14 +55,25 @@ module ActsAsSpan
   module NamedScopes
     def self.included(model)
       model.class_eval do
-        named_scope :current, Proc.new { {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :today OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :today OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :today => Date.today } ] } }
-        named_scope :future, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :today", { :today => Date.today } ] } }
-        named_scope :expired, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :today", { :today => Date.today } ] } }
-        
-        #Named Scopes to query the span on a date other than Date.today...
-        named_scope :current_on, Proc.new { |query_date| {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :today OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :today OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :today => query_date } ] } }
-        named_scope :future_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :today", { :today => query_date } ] } }
-        named_scope :expired_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :today", { :today => query_date } ] } }
+        if acts_as_span_options[:exclude_end]
+          named_scope :current, Proc.new { {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => Date.today } ] } }
+          named_scope :future, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => Date.today } ] } }
+          named_scope :expired, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :query_date", { :query_date => Date.today } ] } }
+          
+          #Named Scopes to query the span on a date other than Date.today...
+          named_scope :current_on, Proc.new { |query_date| {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => query_date } ] } }
+          named_scope :future_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => query_date } ] } }
+          named_scope :expired_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :query_date", { :query_date => query_date } ] } }
+        else
+          named_scope :current, Proc.new { {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} >= :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => Date.today } ] } }
+          named_scope :future, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => Date.today } ] } }
+          named_scope :expired, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} < :query_date", { :query_date => Date.today } ] } }
+          
+          #Named Scopes to query the span on a date other than Date.today...
+          named_scope :current_on, Proc.new { |query_date| {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} >= :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => query_date } ] } }
+          named_scope :future_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => query_date } ] } }
+          named_scope :expired_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} < :query_date", { :query_date => query_date } ] } }
+        end
         
         if self.respond_to?(:scope_procedure)
           #Searchlogic can't handle parent.child_record_current_or_future OR parent.child_record_current_or_child_record_future
@@ -62,6 +83,32 @@ module ActsAsSpan
       end
     end
   end
+  
+  #module Scopes
+  #  def current(date = Date.today)
+  #    scoped(:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :date => date } ] )
+  #  end
+  #  
+  #  def future(date = Date.today)
+  #    scoped(:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :date", { :date => date } ] )
+  #  end
+  #  
+  #  def expired(date = Date.today)
+  #    scoped(:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :date", { :date => date } ] ) 
+  #  end
+  #  
+  #  def current_on(date)
+  #    current(date)
+  #  end
+  #  
+  #  def future_on(date)
+  #    future(date)
+  #  end
+  #  
+  #  def expired_on(date)
+  #    expired(date)
+  #  end
+  #end
   
   module DateAsString
     def self.included(model)
@@ -84,43 +131,59 @@ module ActsAsSpan
   end
   
   module InstanceMethods
-    def current?
-      start_date = self.send(acts_as_span_options[:start_date_field])
-      end_date = self.send(acts_as_span_options[:end_date_field])
-      
-      (start_date.nil? || start_date <= Date.today) && (end_date.nil? || end_date > Date.today)
+    def current?(query_date = Date.today)
+      #(start_date.nil? || start_date <= Date.today) && (end_date.nil? || end_date > Date.today)
+      !future?(query_date) && !expired?(query_date)
     end
 
-    def future?
-      start_date = self.send(acts_as_span_options[:start_date_field])
-      
-      start_date && start_date > Date.today
-    end
-
-    def expired?
-      end_date = self.send(acts_as_span_options[:end_date_field])
-      
-      end_date && end_date <= Date.today
-    end
-    
-    #Methods to query the span on a date other than Date.today...
-    def current_on?(query_date)
-      start_date = self.send(acts_as_span_options[:start_date_field])
-      end_date = self.send(acts_as_span_options[:end_date_field])
-      
-      (start_date.nil? || start_date <= query_date) && (end_date.nil? || end_date > query_date)
-    end
-
-    def future_on?(query_date)
+    def future?(query_date = Date.today)
       start_date = self.send(acts_as_span_options[:start_date_field])
       
       start_date && start_date > query_date
     end
 
-    def expired_on?(query_date)
+    def expired?(query_date = Date.today)
+      end_date = self.send(acts_as_span_options[:end_date_field])
+      exclude_end = acts_as_span_options[:exclude_end]
+      
+      if exclude_end
+        end_date && end_date <= query_date
+      else
+        end_date && end_date < query_date
+      end
+    end
+    
+    def starting?(query_date = Date.today)
+      start_date = self.send(acts_as_span_options[:start_date_field]) 
+      
+      start_date == query_date
+    end
+    
+    def ending?(query_date = Date.today)
       end_date = self.send(acts_as_span_options[:end_date_field])
       
-      end_date && end_date <= query_date
+      end_date == query_date
+    end
+    
+    #Methods to query the span on a date other than Date.today...
+    def current_on?(query_date)
+      current?(query_date)
+    end
+
+    def future_on?(query_date)
+      future?(query_date)
+    end
+
+    def expired_on?(query_date)
+      expired?(query_date)
+    end
+    
+    def starting_on?(query_date)
+      starting?(query_date)
+    end
+    
+    def ending_on?(query_date)
+      ending?(query_date)
     end
     
     def close!(close_date=Date.today)
@@ -176,6 +239,7 @@ module ActsAsSpan
         errors.add(acts_as_span_options[:end_date_field], :blank)
       end
       
+      #if start_date && end_date && end_date <= start_date
       if start_date && end_date && end_date < start_date
         errors.add(acts_as_span_options[:end_date_field], "Must be after #{acts_as_span_options[:start_date_field]}")
       end
