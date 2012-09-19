@@ -24,14 +24,12 @@ describe "a basic model using acts_as_span" do
   context "validating_model" do
     it "should require a start_date" do
       validation_model = ValidatingModel.new(:start_date => nil, :end_date => Date.today)
-      #validation_model.valid?
       validation_model.should_not be_valid
       validation_model.errors[:start_date].should_not be_nil
     end
     
     it "should require an end_date" do
       validation_model = ValidatingModel.new(:start_date => Date.today, :end_date => nil)
-      #validation_model.valid?
       validation_model.should_not be_valid
       validation_model.errors[:end_date].should_not be_nil
     end
@@ -46,7 +44,6 @@ describe "a basic model using acts_as_span" do
     context "end_date < start_date" do
       it "should NOT be valid" do
         validation_model = ValidatingModel.new(:start_date => Date.today, :end_date => Date.today - 1.day)
-        #validation_model.valid?
         validation_model.should_not be_valid
         validation_model.errors[:end_date].should_not be_nil
       end
@@ -76,13 +73,12 @@ describe "a basic model using acts_as_span" do
       validation_model.should be_valid
     end
     
-    #this is condensed - it's really the same test as above, we're just making sure nothing changes...
-    it "should require an end_date > start_date" do
+    #this is condensed - it's really the same tests as above, we're just making sure nothing changes...
+    it "should require an end_date >= start_date" do
       validation_model = NonValidatingModel.new(:start_date => Date.today, :end_date => Date.today)
       validation_model.should be_valid
       
       validation_model = NonValidatingModel.new(:start_date => Date.today, :end_date => Date.today - 1.day)
-      #validation_model.valid?
       validation_model.should_not be_valid
       validation_model.errors[:end_date].should_not be_nil
       
@@ -97,6 +93,3 @@ describe "a basic model using acts_as_span" do
   end
 
 end
-
-#errors.on\(:(\w*)\)
-#errors[:$1]

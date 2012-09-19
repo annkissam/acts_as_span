@@ -12,7 +12,10 @@ module ActsAsSpan
                    :end_date_field => :end_date,
                    :start_date_field_required => false,
                    :end_date_field_required => false,
-                   :exclude_end => false }
+                   :exclude_end => false,
+                   :span_overlap_scope => nil,
+                   :span_overlap_count => nil }
+                   #:span_overlap_auto_close => false }
       options = args.last.is_a?(Hash) ? defaults.merge(args.pop) : defaults
       #options.assert_valid_keys()
       
@@ -55,25 +58,36 @@ module ActsAsSpan
   module NamedScopes
     def self.included(model)
       model.class_eval do
+        scope_method = ActiveRecord::VERSION::MAJOR >= 3 ? :scope : :named_scope
+        
         if acts_as_span_options[:exclude_end]
-          named_scope :current, Proc.new { {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => Date.today } ] } }
-          named_scope :future, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => Date.today } ] } }
-          named_scope :expired, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :query_date", { :query_date => Date.today } ] } }
+          self.send(scope_method, :current, Proc.new { {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => Date.today } ] } })
+          self.send(scope_method, :future, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => Date.today } ] } })
+          self.send(scope_method, :expired, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :query_date", { :query_date => Date.today } ] } })
           
           #Named Scopes to query the span on a date other than Date.today...
-          named_scope :current_on, Proc.new { |query_date| {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => query_date } ] } }
-          named_scope :future_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => query_date } ] } }
-          named_scope :expired_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :query_date", { :query_date => query_date } ] } }
+          self.send(scope_method, :current_on, Proc.new { |query_date| {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} > :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => query_date } ] } })
+          self.send(scope_method, :future_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => query_date } ] } })
+          self.send(scope_method, :expired_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} <= :query_date", { :query_date => query_date } ] } })
         else
-          named_scope :current, Proc.new { {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} >= :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => Date.today } ] } }
-          named_scope :future, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => Date.today } ] } }
-          named_scope :expired, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} < :query_date", { :query_date => Date.today } ] } }
+          self.send(scope_method, :current, Proc.new { {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} >= :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => Date.today } ] } })
+          self.send(scope_method, :future, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => Date.today } ] } })
+          self.send(scope_method, :expired, Proc.new { {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} < :query_date", { :query_date => Date.today } ] } })
           
           #Named Scopes to query the span on a date other than Date.today...
-          named_scope :current_on, Proc.new { |query_date| {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} >= :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => query_date } ] } }
-          named_scope :future_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => query_date } ] } }
-          named_scope :expired_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} < :query_date", { :query_date => query_date } ] } }
+          self.send(scope_method, :current_on, Proc.new { |query_date| {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :query_date OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} >= :query_date OR #{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL)", { :query_date => query_date } ] } })
+          self.send(scope_method, :future_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:start_date_field]} > :query_date", { :query_date => query_date } ] } })
+          self.send(scope_method, :expired_on, Proc.new { |query_date| {:conditions => ["#{self.table_name}.#{acts_as_span_options[:end_date_field]} < :query_date", { :query_date => query_date } ] } })
         end
+        
+        self.send(scope_method, :overlap, Proc.new { |record|
+          #raise "TODO" unless record.is_a?(self.class)
+          
+          record_start_date = record.send(record.acts_as_span_options[:start_date_field])
+          record_end_date = record.send(record.acts_as_span_options[:end_date_field])
+          
+          {:conditions => ["(#{self.table_name}.#{acts_as_span_options[:start_date_field]} IS NULL OR :record_end_date IS NULL OR #{self.table_name}.#{acts_as_span_options[:start_date_field]} <= :record_end_date) AND (#{self.table_name}.#{acts_as_span_options[:end_date_field]} IS NULL OR :record_start_date IS NULL OR :record_start_date <= #{self.table_name}.#{acts_as_span_options[:end_date_field]})", { :record_start_date => record_start_date, :record_end_date => record_end_date } ] } 
+          } )
         
         if self.respond_to?(:scope_procedure)
           #Searchlogic can't handle parent.child_record_current_or_future OR parent.child_record_current_or_child_record_future
@@ -132,7 +146,6 @@ module ActsAsSpan
   
   module InstanceMethods
     def current?(query_date = Date.today)
-      #(start_date.nil? || start_date <= Date.today) && (end_date.nil? || end_date > Date.today)
       !future?(query_date) && !expired?(query_date)
     end
 
@@ -154,7 +167,7 @@ module ActsAsSpan
     end
     
     def starting?(query_date = Date.today)
-      start_date = self.send(acts_as_span_options[:start_date_field]) 
+      start_date = self.send(acts_as_span_options[:start_date_field])
       
       start_date == query_date
     end
@@ -217,32 +230,86 @@ module ActsAsSpan
       end
     end
     
-    #If there was no param[:start_date_string], set to default
-    #Note, this is different than blank!
-    #if a form has a start_date_string - don't set this
-    #if a form does not have a start_date_string - set this
-    #def add_start_date
-    #  return unless acts_as_span_options[:add_start_date_if_start_date_string_is_nil] && self.send(acts_as_span_options[:start_date_field]).blank?
-    #  self.send("#{acts_as_span_options[:start_date_field]}=", Date.today)
-    #  start_date = Date.today if start_date_string.nil?
-    #end
+    #This defaults nil to Date.today - Is that really the correct behavior?
+    def to_date_range
+      start_date = self.send(acts_as_span_options[:start_date_field])
+      start_date = Date.today if start_date.blank?
+      end_date = self.send(acts_as_span_options[:end_date_field])
+      end_date = Date.today if end_date.blank?
+      
+      start_date..end_date
+    end
     
     def validate_span
+      #We're just mapping these to temporary variables for ease of use
+      start_date_field = acts_as_span_options[:start_date_field]
+      end_date_field = acts_as_span_options[:end_date_field]
+      
+      start_date_field_required = acts_as_span_options[:start_date_field_required]
+      end_date_field_required = acts_as_span_options[:end_date_field_required]
+      
+      start_date = self.send(start_date_field)
+      end_date = self.send(end_date_field)
+      
+      if start_date_field_required && start_date.blank?
+        errors.add(start_date_field, :blank)
+      end
+      
+      if end_date_field_required && end_date.blank?
+        errors.add(end_date_field, :blank)
+      end
+      
+      if start_date && end_date && end_date < start_date
+        errors.add(end_date_field, "Must be on or after #{start_date_field}")
+      end
+      
+      if (acts_as_span_options[:span_overlap_count] || acts_as_span_options[:span_overlap_scope]) && errors[start_date_field].blank? && errors[end_date_field].blank? && ( respond_to?('archived?') ? !archived? : true )
+        conditions = {}
+        
+        span_overlap_scope = acts_as_span_options[:span_overlap_scope]
+        
+        if span_overlap_scope.is_a?(Array)
+          span_overlap_scope.each do |symbol|
+            conditions[symbol] = send(symbol)
+          end
+        elsif span_overlap_scope.is_a?(Symbol)
+          conditions[span_overlap_scope] = send(span_overlap_scope)
+        end
+        
+        if self.class.respond_to?('not_archived')
+          records = self.class.not_archived.overlap(self).all(:conditions => conditions)
+        else
+          records = self.class.overlap(self).all(:conditions => conditions)
+        end
+        
+        records = records.reject {|record| record == self }
+        
+        #TODO - This will have to be an after_save callback...
+        #if acts_as_span_options[:span_overlap_auto_close]
+        #  records.each do |record|
+        #    record.close!(start_date)
+        #  end
+        #end
+                
+        if records.count > (acts_as_span_options[:span_overlap_count] || 0)
+          ActiveRecord::VERSION::MAJOR >= 3 ?  errors.add(:base, :overlaps) : errors.add_to_base(:overlaps)
+        end
+      end
+    end
+    
+    def overlap?(record)
+      #raise "TODO" unless record.is_a?(self.class)
+      
       start_date = self.send(acts_as_span_options[:start_date_field])
       end_date = self.send(acts_as_span_options[:end_date_field])
       
-      if acts_as_span_options[:start_date_field_required] && start_date.blank?
-        errors.add(acts_as_span_options[:start_date_field], :blank)
-      end
+      record_start_date = record.send(record.acts_as_span_options[:start_date_field])
+      record_end_date = record.send(record.acts_as_span_options[:end_date_field])
       
-      if acts_as_span_options[:end_date_field_required] && end_date.blank?
-        errors.add(acts_as_span_options[:end_date_field], :blank)
-      end
+      #http://stackoverflow.com/questions/699448/ruby-how-do-you-check-whether-a-range-contains-a-subset-of-another-range
+      #start_date <= record_end_date && record_start_date <= end_date
       
-      #if start_date && end_date && end_date <= start_date
-      if start_date && end_date && end_date < start_date
-        errors.add(acts_as_span_options[:end_date_field], "Must be after #{acts_as_span_options[:start_date_field]}")
-      end
+      (start_date.nil? || record_end_date.nil? || start_date <= record_end_date) && (end_date.nil? || record_start_date.nil? || record_start_date <= end_date)
     end
   end
   
@@ -263,71 +330,3 @@ end
 if Object.const_defined?("ActiveRecord")
   ActiveRecord::Base.send(:include, ActsAsSpan)
 end
-
-=begin
-  def acts_as_span(options={})
-    module_eval <<-EOF
-      date_as_string :start_date, :default => "Date.today.strftime('%m/%d/%Y')"
-      date_as_string :end_date
-  
-      validate :valid_dates
-  
-      def valid_dates
-        return unless errors.on(:start_date_string).nil?
-  
-        errors.add(:start_date_string, :blank) unless start_date || _acts_as_span_options[:require_start_date] == false 
-        errors.add(:end_date_string, 'must be after Start Date') if end_date && errors.on(:end_date_string).nil? && ((start_date && end_date < start_date) || (start_date.nil?))
-      end
-  
-      def to_date_range
-        if end_date
-          start_date..end_date
-        else
-          start_date..Date.today
-        end
-      end
-          
-    EOF
-  
-    if options[:exclude_overlapping_spans]
-      if options[:exclude_overlapping_spans].is_a?(Array)
-        attributes = []
-        options[:exclude_overlapping_spans].each {|attribute| attributes << "!#{attribute}.blank?"}
-        attributes_required_string = attributes.join(' && ')
-        scopes = []
-        options[:exclude_overlapping_spans].each {|scope| scopes << "#{scope}_is(#{scope})" }
-        scope = scopes.join('.')  
-      else
-        attributes_required_string = true
-        scope = 'all'
-      end
-  
-      module_eval <<-EOF
-        validate                    :exclude_overlapping_spans
-  
-        def exclude_overlapping_spans
-          return unless #{attributes_required_string} && start_date && errors.on(:start_date_string).nil? && errors.on(:end_date_string).nil?
-  
-          #{self.name}.#{scope}.each do |record|
-            next if record == self
-            next if record.respond_to?('archived?') && record.archived?
-  
-            #{'record.update_attribute(:end_date, start_date) if record.end_date.nil? && record.start_date <= start_date' if options[:auto_close] }
-  
-            if record.start_date && record.end_date
-              if end_date 
-                return errors.add(:date_range, :overlaps) unless (start_date <= record.start_date && end_date <= record.start_date) || (start_date >= record.end_date && end_date >= record.end_date)
-              else
-                return errors.add(:date_range, :overlaps) unless start_date >= record.end_date
-              end  
-            elsif record.start_date && end_date
-              return errors.add(:date_range, :overlaps) unless end_date <= record.start_date
-            else
-              return errors.add(:date_range, :overlaps)
-            end    
-          end    
-        end
-      EOF
-    end
-  end
-=end

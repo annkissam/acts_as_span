@@ -1,0 +1,12 @@
+== 0.0.3
+* Rails 2 & 3 compatibility (w/o warnings)
+* Added Gemfile to test multiple rails versions (rake spec:all)
+* Added span_overlap_count - nil (no validation of overlaps), 0 (validate no overlaps), n (validate at most n overlaps)
+* Added span_overlap_scope - an attribute to scope span_overlaps (normally a belongs_to relationship)
+* Added the named_scope overlap(model) and the instance method overlap?(model)
+
+== 0.0.2
+* ability to specify fields other than :start_date / :end_date
+
+== 0.0.1
+* moved 'acts_as_span' method from ak_extensions gem to this gem

@@ -5,7 +5,7 @@ require 'rake/gempackagetask'
 require 'spec/rake/spectask'
  
 GEM = "acts_as_span"
-GEM_VERSION = "0.0.2"
+GEM_VERSION = "0.0.3"
 SUMMARY = "Adds date range methods to ActiveRecord Models"
 AUTHOR = "Eric Sullivan"
 EMAIL = "eric.sullivan@annkissam.com"
@@ -22,6 +22,8 @@ spec = Gem::Specification.new do |s|
   s.author = AUTHOR
   s.email = EMAIL
   s.homepage = HOMEPAGE
+  
+  s.add_dependency('activerecord', '>= 0')
 end
  
 Spec::Rake::SpecTask.new do |t|
@@ -75,4 +77,39 @@ task :commit do
   Rake::Task['install'].execute
   Rake::Task['svn:add_all'].execute
   Rake::Task['svn:delete_missing'].execute
+end
+
+namespace :spec do
+  desc "run specs against multiple versions of rails"
+  task :all do
+    Dir["Gemfile-*"].sort.each do |gemfile|
+      next if gemfile =~ /.lock/
+      
+      puts "* running specs under #{gemfile} ..."
+      gemfile_lock = "#{gemfile}.lock"
+      
+      FileUtils.rm_f "Gemfile"
+      FileUtils.rm_f "Gemfile.lock"
+      
+      FileUtils.cp gemfile, "Gemfile"
+      
+      if FileTest::exist?(gemfile_lock)
+        FileUtils.cp gemfile_lock, "Gemfile.lock"
+      else
+        system("bundle install") || raise("could not bundle #{gemfile}")
+        FileUtils.cp "Gemfile.lock", gemfile_lock
+      end
+      
+      system("bundle exec spec spec")
+      
+      FileUtils.rm_f "Gemfile"
+      FileUtils.rm_f "Gemfile.lock"
+      
+      #FileUtils.rm_f "Gemfile"
+      #FileUtils.cp gemfile, "Gemfile"
+      #system("bundle install") || raise("could not bundle #{gemfile}")
+      #system("bundle exec spec spec")
+      #FileUtils.rm_f "Gemfile.lock"
+    end
+  end
 end
