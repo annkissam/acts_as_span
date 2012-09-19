@@ -5,7 +5,7 @@ require 'rake/gempackagetask'
 require 'spec/rake/spectask'
  
 GEM = "acts_as_span"
-GEM_VERSION = "0.0.3"
+GEM_VERSION = "0.0.4"
 SUMMARY = "Adds date range methods to ActiveRecord Models"
 AUTHOR = "Eric Sullivan"
 EMAIL = "eric.sullivan@annkissam.com"
@@ -104,12 +104,6 @@ namespace :spec do
       
       FileUtils.rm_f "Gemfile"
       FileUtils.rm_f "Gemfile.lock"
-      
-      #FileUtils.rm_f "Gemfile"
-      #FileUtils.cp gemfile, "Gemfile"
-      #system("bundle install") || raise("could not bundle #{gemfile}")
-      #system("bundle exec spec spec")
-      #FileUtils.rm_f "Gemfile.lock"
     end
   end
 end

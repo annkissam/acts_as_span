@@ -36,10 +36,10 @@ module ActsAsSpan
       end
       
       #Make sure the columns exists... But only if the table is already created...
-      if table_exists?
-        raise ArgumentError, "Column '#{options[:start_date_field]}' does not exist" unless columns_hash[options[:start_date_field].to_s]
-        raise ArgumentError, "Column '#{options[:end_date_field]}' does not exist" unless columns_hash[options[:end_date_field].to_s]
-      end
+      #if table_exists?
+      #  raise ArgumentError, "Column '#{options[:start_date_field]}' does not exist" unless columns_hash[options[:start_date_field].to_s]
+      #  raise ArgumentError, "Column '#{options[:end_date_field]}' does not exist" unless columns_hash[options[:end_date_field].to_s]
+      #end
       
       cattr_accessor :acts_as_span_options
       self.acts_as_span_options = options
@@ -292,7 +292,7 @@ module ActsAsSpan
         #end
                 
         if records.count > (acts_as_span_options[:span_overlap_count] || 0)
-          ActiveRecord::VERSION::MAJOR >= 3 ?  errors.add(:base, :overlaps) : errors.add_to_base(:overlaps)
+          errors.add(:base, :overlaps)
         end
       end
     end
