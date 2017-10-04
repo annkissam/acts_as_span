@@ -25,10 +25,10 @@ RSpec.describe "acts_as_span" do
     it "should set default options for acts_as_span_definition" do
       span_definition = SpanModel.acts_as_span_definitions[:default]
 
-      expect(span_definition.start_date_field).to eq(:start_date)
-      expect(span_definition.end_date_field).to eq(:end_date)
-      expect(span_definition.start_date_field_required).to be_falsey
-      expect(span_definition.end_date_field_required).to be_falsey
+      expect(span_definition.start_field).to eq(:start_date)
+      expect(span_definition.end_field).to eq(:end_date)
+      expect(span_definition.start_field_required).to be_falsey
+      expect(span_definition.end_field_required).to be_falsey
       expect(span_definition.exclude_end).to be_falsey
       expect(span_definition.span_overlap_scope).to be_nil
       expect(span_definition.span_overlap_count).to be_nil

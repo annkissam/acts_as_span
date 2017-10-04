@@ -12,10 +12,10 @@ module ActsAsSpan
   class << self
     def options
       @options ||= {
-        :start_date_field => :start_date,
-        :end_date_field => :end_date,
-        :start_date_field_required => false,
-        :end_date_field_required => false,
+        :start_field => :start_date,
+        :end_field => :end_date,
+        :start_field_required => false,
+        :end_field_required => false,
         :span_overlap_scope => nil,
         :span_overlap_count => nil,
         :name => :default

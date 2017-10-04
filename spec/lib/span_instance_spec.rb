@@ -13,8 +13,8 @@ RSpec.describe "Span" do
     end
 
     class SpanModel < ActiveRecord::Base
-      acts_as_span :start_date_field => :start_date,
-                   :end_date_field => :end_date
+      acts_as_span :start_field => :start_date,
+                   :end_field => :end_date
     end
   end
 

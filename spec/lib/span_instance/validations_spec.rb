@@ -27,9 +27,9 @@ RSpec.describe "Span" do
     expect(span_model).to be_valid
   end
 
-  context ":start_date_field_required => true" do
+  context ":start_field_required => true" do
     before do
-      SpanModel.acts_as_span :start_date_field_required => true
+      SpanModel.acts_as_span :start_field_required => true
     end
 
     it "should require a start_date" do
@@ -40,9 +40,9 @@ RSpec.describe "Span" do
     end
   end
 
-  context ":end_date_field_required => true" do
+  context ":end_field_required => true" do
     before do
-      SpanModel.acts_as_span :end_date_field_required => true
+      SpanModel.acts_as_span :end_field_required => true
     end
 
     it "should require an end_date" do

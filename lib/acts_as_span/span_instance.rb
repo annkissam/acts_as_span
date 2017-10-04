@@ -10,10 +10,10 @@ module ActsAsSpan
     include ActsAsSpan::SpanInstance::Status
     include ActsAsSpan::SpanInstance::Overlap
 
-    delegate :start_date_field,
-                                              :end_date_field,
-                                              :start_date_field_required,
-                                              :end_date_field_required,
+    delegate :start_field,
+                                              :end_field,
+                                              :start_field_required,
+                                              :end_field_required,
                                               :exclude_end,
                                               :span_overlap_scope,
                                               :span_overlap_count, to: :@acts_as_span_definition
@@ -33,11 +33,11 @@ module ActsAsSpan
     end
 
     def start_date
-      span_model[start_date_field]
+      span_model[start_field]
     end
 
     def end_date
-      span_model[end_date_field]
+      span_model[end_field]
     end
   end
 end

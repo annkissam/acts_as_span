@@ -8,10 +8,10 @@ module ActsAsSpan
     include ActsAsSpan::SpanKlass::Status
     include ActsAsSpan::SpanKlass::Overlap
 
-    delegate :start_date_field,
-             :end_date_field,
-             :start_date_field_required,
-             :end_date_field_required,
+    delegate :start_field,
+             :end_field,
+             :start_field_required,
+             :end_field_required,
              :exclude_end,
              :span_overlap_scope,
              :span_overlap_count, to: :@acts_as_span_definition

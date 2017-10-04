@@ -12,25 +12,25 @@ module ActsAsSpan
         end
 
         def validate_start_date
-          if start_date_field_required && start_date.blank?
-            span_model.errors.add(start_date_field, :blank)
+          if start_field_required && start_date.blank?
+            span_model.errors.add(start_field, :blank)
           end
         end
 
         def validate_end_date
-          if end_date_field_required && end_date.blank?
-            span_model.errors.add(end_date_field, :blank)
+          if end_field_required && end_date.blank?
+            span_model.errors.add(end_field, :blank)
           end
         end
 
         def validate_start_date_less_than_or_equal_to_end_date
           if start_date && end_date && end_date < start_date
-            span_model.errors.add(end_date_field, "Must be on or after #{start_date_field}")
+            span_model.errors.add(end_field, "Must be on or after #{start_field}")
           end
         end
 
         def validate_overlap
-          if span_overlap_count && span_model.errors[start_date_field].empty? && span_model.errors[end_date_field].empty? # && ( respond_to?('archived?') ? !archived? : true )
+          if span_overlap_count && span_model.errors[start_field].empty? && span_model.errors[end_field].empty? # && ( respond_to?('archived?') ? !archived? : true )
             conditions = {}
 
             if span_overlap_scope.is_a?(Array)
