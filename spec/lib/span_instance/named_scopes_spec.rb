@@ -2,11 +2,17 @@ require 'spec_helper'
 
 RSpec.describe "a basic model using acts_as_span" do
   before(:all) do
-    build_model :span_model do
-      string   :description
-      date     :start_date
-      date     :end_date
+    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+    ActiveRecord::Migration.verbose = false
 
+    ActiveRecord::Schema.define do
+      create_table :span_models, force: true do |t|
+        t.date :start_date
+        t.date :end_date
+      end
+    end
+
+    class SpanModel < ActiveRecord::Base
       acts_as_span
     end
   end
@@ -32,18 +38,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should NOT be included in #current" do
-        SpanModel.current.should_not include(@span_model)
-        @span_model.current?.should be_false
+        expect(SpanModel.current).not_to include(@span_model)
+        expect(@span_model.current?).to be_falsey
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should be included in #expired" do
-        SpanModel.expired.should include(@span_model)
-        @span_model.expired?.should be_true
+        expect(SpanModel.expired).to include(@span_model)
+        expect(@span_model.expired?).to be_truthy
       end
     end
 
@@ -53,18 +59,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -74,18 +80,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -95,18 +101,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -116,18 +122,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -137,18 +143,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should NOT be included in #current" do
-        SpanModel.current.should_not include(@span_model)
-        @span_model.current?.should be_false
+        expect(SpanModel.current).not_to include(@span_model)
+        expect(@span_model.current?).to be_falsey
       end
 
       it "should be included in #future" do
-        SpanModel.future.should include(@span_model)
-        @span_model.future?.should be_true
+        expect(SpanModel.future).to include(@span_model)
+        expect(@span_model.future?).to be_truthy
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -158,18 +164,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -179,18 +185,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -200,18 +206,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should NOT be included in #current" do
-        SpanModel.current.should_not include(@span_model)
-        @span_model.current?.should be_false
+        expect(SpanModel.current).not_to include(@span_model)
+        expect(@span_model.current?).to be_falsey
       end
 
       it "should be included in #future" do
-        SpanModel.future.should include(@span_model)
-        @span_model.future?.should be_true
+        expect(SpanModel.future).to include(@span_model)
+        expect(@span_model.future?).to be_truthy
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -221,18 +227,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should NOT be included in #current" do
-        SpanModel.current.should_not include(@span_model)
-        @span_model.current?.should be_false
+        expect(SpanModel.current).not_to include(@span_model)
+        expect(@span_model.current?).to be_falsey
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should be included in #expired" do
-        SpanModel.expired.should include(@span_model)
-        @span_model.expired?.should be_true
+        expect(SpanModel.expired).to include(@span_model)
+        expect(@span_model.expired?).to be_truthy
       end
     end
 
@@ -242,18 +248,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -263,18 +269,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
 
@@ -284,18 +290,18 @@ RSpec.describe "a basic model using acts_as_span" do
       end
 
       it "should be included in #current" do
-        SpanModel.current.should include(@span_model)
-        @span_model.current?.should be_true
+        expect(SpanModel.current).to include(@span_model)
+        expect(@span_model.current?).to be_truthy
       end
 
       it "should NOT be included in #future" do
-        SpanModel.future.should_not include(@span_model)
-        @span_model.future?.should be_false
+        expect(SpanModel.future).not_to include(@span_model)
+        expect(@span_model.future?).to be_falsey
       end
 
       it "should NOT be included in #expired" do
-        SpanModel.expired.should_not include(@span_model)
-        @span_model.expired?.should be_false
+        expect(SpanModel.expired).not_to include(@span_model)
+        expect(@span_model.expired?).to be_falsey
       end
     end
   end

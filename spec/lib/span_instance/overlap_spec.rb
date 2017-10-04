@@ -1,44 +1,54 @@
 require 'spec_helper'
 
 RSpec.describe "a basic model using acts_as_span" do
-  before(:each) do
-    build_model :multiple_scoped_model do
-      integer  :parent_1_id
-      integer  :parent_2_id
-      string   :description
-      date     :start_date
-      date     :end_date
+  before do
+    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+    ActiveRecord::Migration.verbose = false
 
+    ActiveRecord::Schema.define do
+      create_table :multiple_scoped_models, force: true do |t|
+        t.integer :parent_1_id
+        t.integer :parent_2_id
+        t.date :start_date
+        t.date :end_date
+      end
+
+      create_table :single_scoped_models, force: true do |t|
+        t.integer :parent_1_id
+        t.date :start_date
+        t.date :end_date
+      end
+
+      create_table :scoped_models, force: true do |t|
+        t.date :start_date
+        t.date :end_date
+      end
+
+      create_table :span_models, force: true do |t|
+        t.date :start_date
+        t.date :end_date
+      end
+    end
+
+    class MultipleScopedModel < ActiveRecord::Base
       acts_as_span :span_overlap_count => 1, :span_overlap_scope => [:parent_1_id, :parent_2_id]
     end
 
-    build_model :single_scoped_model do
-      integer  :parent_1_id
-      string   :description
-      date     :start_date
-      date     :end_date
-
+    class SingleScopedModel < ActiveRecord::Base
       acts_as_span :span_overlap_scope => :parent_1_id
     end
 
-    build_model :scoped_model do
-      string   :description
-      date     :start_date
-      date     :end_date
-
+    class ScopedModel < ActiveRecord::Base
       acts_as_span :span_overlap_count => 0
     end
 
-    build_model :span_model do
-      string   :description
-      date     :start_date
-      date     :end_date
-
+    class SpanModel < ActiveRecord::Base
       acts_as_span :span_overlap_count => nil
     end
 
     ScopedModel.all.each(&:destroy)
   end
+
 
   #context "span_overlap_count == nil" do
   #  before(:each) do
@@ -117,104 +127,104 @@ RSpec.describe "a basic model using acts_as_span" do
       context "A) start_date < span_model.start_date && end_date < span_model.start_date" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today - 3.days)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "B) start_date < span_model.start_date && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "C) start_date < span_model.start_date && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "D) start_date IN span && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "E) start_date IN span && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 4.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "F) start_date > span_model.end_date && end_date > span_model.end_date" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => Date.today + 4.days)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "G) start_date < span_model.start_date && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "H) start_date IN span && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "I) start_date > span_model.end_date && end_date nil" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => nil)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "J) start_date nil && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "K) start_date nil && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "L) start_date nil && end_date < span_model.start_date" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today - 3.days)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "M) start_date nil && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
     end
@@ -242,104 +252,104 @@ RSpec.describe "a basic model using acts_as_span" do
       context "A) start_date < span_model.start_date && end_date < span_model.start_date" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today - 3.days)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "B) start_date < span_model.start_date && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "C) start_date < span_model.start_date && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "D) start_date IN span && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "E) start_date IN span && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 4.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "F) start_date > span_model.end_date && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "G) start_date < span_model.start_date && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "H) start_date IN span && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "I) start_date > span_model.end_date && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "J) start_date nil && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "K) start_date nil && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "L) start_date nil && end_date < span_model.start_date" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today - 3.days)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "M) start_date nil && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
     end
@@ -367,104 +377,104 @@ RSpec.describe "a basic model using acts_as_span" do
       context "A) start_date < span_model.start_date && end_date < span_model.start_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today - 3.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "B) start_date < span_model.start_date && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "C) start_date < span_model.start_date && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "D) start_date IN span && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "E) start_date IN span && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 4.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "F) start_date > span_model.end_date && end_date > span_model.end_date" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => Date.today + 4.days)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "G) start_date < span_model.start_date && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "H) start_date IN span && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "I) start_date > span_model.end_date && end_date nil" do
         it "should be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => nil)
-          scoped_model.should be_valid
-          scoped_model.overlap?(@span_model).should be_false
+          expect(scoped_model).to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_falsey
         end
       end
 
       context "J) start_date nil && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "K) start_date nil && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "L) start_date nil && end_date < span_model.start_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today - 3.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "M) start_date nil && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
     end
@@ -492,104 +502,104 @@ RSpec.describe "a basic model using acts_as_span" do
       context "A) start_date < span_model.start_date && end_date < span_model.start_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today - 3.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "B) start_date < span_model.start_date && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "C) start_date < span_model.start_date && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "D) start_date IN span && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "E) start_date IN span && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => Date.today + 4.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "F) start_date > span_model.end_date && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "G) start_date < span_model.start_date && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 4.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "H) start_date IN span && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today - 1.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "I) start_date > span_model.end_date && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => Date.today + 3.days, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "J) start_date nil && end_date > span_model.end_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 4.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "K) start_date nil && end_date IN span" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today + 1.day)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "L) start_date nil && end_date < span_model.start_date" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => Date.today - 3.days)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
 
       context "M) start_date nil && end_date nil" do
         it "should NOT be valid" do
           scoped_model = ScopedModel.new(:start_date => nil, :end_date => nil)
-          scoped_model.should_not be_valid
-          scoped_model.overlap?(@span_model).should be_true
+          expect(scoped_model).not_to be_valid
+          expect(scoped_model.overlap?(@span_model)).to be_truthy
         end
       end
     end

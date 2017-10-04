@@ -1,10 +1,19 @@
 require 'spec_helper'
 
 RSpec.describe "Span" do
-  before(:each) do
-    build_model :span_model do
-      date  :start_date
-      date  :end_date
+  before do
+    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+    ActiveRecord::Migration.verbose = false
+
+    ActiveRecord::Schema.define do
+      create_table :span_models, force: true do |t|
+        t.date :start_date
+        t.date :end_date
+      end
+    end
+
+    class SpanModel < ActiveRecord::Base
+      acts_as_span
     end
   end
 
@@ -15,7 +24,7 @@ RSpec.describe "Span" do
     SpanModel.acts_as_span
     span_model = SpanModel.new(:start_date => nil, :end_date => nil)
 
-    span_model.should be_valid
+    expect(span_model).to be_valid
   end
 
   context ":start_date_field_required => true" do
@@ -26,8 +35,8 @@ RSpec.describe "Span" do
     it "should require a start_date" do
       span_model = SpanModel.new(:start_date => nil, :end_date => Date.today + 1)
 
-      span_model.should_not be_valid
-      span_model.errors[:start_date].should have(1).error
+      expect(span_model).not_to be_valid
+      expect(span_model.errors[:start_date].size).to eq(1)
     end
   end
 
@@ -39,8 +48,8 @@ RSpec.describe "Span" do
     it "should require an end_date" do
      span_model = SpanModel.new(:start_date => Date.today, :end_date => nil)
 
-      span_model.should_not be_valid
-      span_model.errors[:end_date].should have(1).error
+      expect(span_model).not_to be_valid
+      expect(span_model.errors[:end_date].size).to eq(1)
     end
   end
 
@@ -48,7 +57,7 @@ RSpec.describe "Span" do
     SpanModel.acts_as_span
     span_model = SpanModel.new(:start_date => Date.today, :end_date => Date.today - 1)
 
-    span_model.should_not be_valid
-    span_model.errors[:end_date].should have(1).error
+    expect(span_model).not_to be_valid
+    expect(span_model.errors[:end_date].size).to eq(1)
   end
 end

@@ -1,7 +1,17 @@
 require 'spec_helper'
 
 RSpec.describe "acts_as_span" do
-  before(:each) do
+  before do
+    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+    ActiveRecord::Migration.verbose = false
+
+    ActiveRecord::Schema.define do
+      create_table :span_models, force: true do |t|
+        t.date :start_date
+        t.date :end_date
+      end
+    end
+
     class SpanModel < ActiveRecord::Base
       acts_as_span
     end
@@ -9,52 +19,48 @@ RSpec.describe "acts_as_span" do
 
   context "ClassMethods" do
     it "should have 1 acts_as_span_definition" do
-      SpanModel.should have(1).acts_as_span_definitions
+      expect(SpanModel.acts_as_span_definitions.size).to eq(1)
     end
 
     it "should set default options for acts_as_span_definition" do
       span_definition = SpanModel.acts_as_span_definitions[:default]
 
-      span_definition.start_date_field.should == :start_date
-      span_definition.end_date_field.should == :end_date
-      span_definition.start_date_field_required.should be_false
-      span_definition.end_date_field_required.should be_false
-      span_definition.exclude_end.should be_false
-      span_definition.span_overlap_scope.should be_nil
-      span_definition.span_overlap_count.should be_nil
-      span_definition.name.should == :default
+      expect(span_definition.start_date_field).to eq(:start_date)
+      expect(span_definition.end_date_field).to eq(:end_date)
+      expect(span_definition.start_date_field_required).to be_falsey
+      expect(span_definition.end_date_field_required).to be_falsey
+      expect(span_definition.exclude_end).to be_falsey
+      expect(span_definition.span_overlap_scope).to be_nil
+      expect(span_definition.span_overlap_count).to be_nil
+      expect(span_definition.name).to eq(:default)
     end
 
     it "should return a SpanKlass w/ span" do
-      SpanModel.span.should be_instance_of(ActsAsSpan::SpanKlass)
+      expect(SpanModel.span).to be_instance_of(ActsAsSpan::SpanKlass)
     end
 
     it "should return a SpanKlass w/ span_for(:default)" do
-      SpanModel.span_for(:default).should be_instance_of(ActsAsSpan::SpanKlass)
+      expect(SpanModel.span_for(:default)).to be_instance_of(ActsAsSpan::SpanKlass)
     end
 
     it "should have (1) spans" do
-      SpanModel.spans.should have(1).span
+      expect(SpanModel.spans.size).to eq(1)
     end
   end
 
   context "InstanceMethods" do
     let(:span_model) { SpanModel.new }
 
-    it "should return true for acts_as_span?" do
-      span_model.acts_as_span?.should be_true
-    end
-
     it "should return a SpanInstance w/ span" do
-      span_model.span.should be_instance_of(ActsAsSpan::SpanInstance)
+      expect(span_model.span).to be_instance_of(ActsAsSpan::SpanInstance)
     end
 
     it "should return a SpanInstance w/ span_for(:default)" do
-      span_model.span_for(:default).should be_instance_of(ActsAsSpan::SpanInstance)
+      expect(span_model.span_for(:default)).to be_instance_of(ActsAsSpan::SpanInstance)
     end
 
     it "should have (1) spans" do
-      span_model.spans.should have(1).span
+      expect(span_model.spans.size).to eq(1)
     end
   end
 end

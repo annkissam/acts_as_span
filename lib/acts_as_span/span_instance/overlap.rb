@@ -2,8 +2,8 @@ module ActsAsSpan
   class SpanInstance
     module Overlap
       extend ActiveSupport::Concern
-      
-      module InstanceMethods
+
+      included do
         #http://stackoverflow.com/questions/699448/ruby-how-do-you-check-whether-a-range-contains-a-subset-of-another-range
         #start_date <= record_end_date && record_start_date <= end_date
         def overlap?(other_span)

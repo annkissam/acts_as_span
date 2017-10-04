@@ -1,6 +1,4 @@
 require 'ostruct'
-require 'forwardable'
-
 require 'acts_as_span/version'
 require 'acts_as_span/span_klass'
 require 'acts_as_span/span_instance'
@@ -31,8 +29,6 @@ module ActsAsSpan
 
   module ClassMethods
     def acts_as_span(*args)
-      self.send(:extend, Forwardable)
-
       self.send(:extend, ActsAsSpan::ExtendedClassMethods)
       self.send(:include, ActsAsSpan::IncludedInstanceMethods)
 
@@ -43,30 +39,26 @@ module ActsAsSpan
 
       acts_as_span_definitions[options.name] = options
 
-      def_delegators :span, :close!,
-                            :close_on!,
-                            :span_status,
-                            :span_status_on,
-                            :span_status_to_s,
-                            :span_status_to_s_on,
-                            :current?,
-                            :current_on?,
-                            :future?,
-                            :future_on?,
-                            :expired?,
-                            :expired_on?
+      delegate :span_status,
+               :span_status_on,
+               :span_status_to_s,
+               :span_status_to_s_on,
+               :current?,
+               :current_on?,
+               :future?,
+               :future_on?,
+               :expired?,
+               :expired_on?, to: :span
 
-      def_delegators 'self.class', :acts_as_span_definitions
+      delegate :acts_as_span_definitions, to: :class
 
       class << self
-        self.send(:extend, Forwardable)
-
-        def_delegators :span, :current,
-                              :current_on,
-                              :future,
-                              :future_on,
-                              :expired,
-                              :expired_on
+        delegate :current,
+                 :current_on,
+                 :future,
+                 :future_on,
+                 :expired,
+                 :expired_on, to: :span
       end
 
       validate :validate_spans

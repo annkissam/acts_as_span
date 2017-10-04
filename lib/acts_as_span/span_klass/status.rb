@@ -5,7 +5,7 @@ module ActsAsSpan
     module Status
       extend ActiveSupport::Concern
 
-      module InstanceMethods
+      included do
         def current(query_date = Date.today)
           klass.where(["(#{table_name}.#{start_date_field} <= :query_date OR #{table_name}.#{start_date_field} IS NULL) AND (#{table_name}.#{end_date_field} >= :query_date OR #{table_name}.#{end_date_field} IS NULL)", { :query_date => query_date } ] )
         end
