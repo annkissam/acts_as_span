@@ -8,3 +8,4 @@ pkg/*
 *.sqlite
 
 .rvmrc
+.rspec_status

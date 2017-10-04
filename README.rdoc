@@ -16,10 +16,6 @@ In your model:
       acts_as_span
     end
 
-Handle your migrations:
-
-   rails g acts_as_span:update model_name
-
 == Copyright
 
-Copyright (c) 2011-2012 Annkissam. See LICENSE for details.
+Copyright (c) 2011-2017 Annkissam. See LICENSE for details.
