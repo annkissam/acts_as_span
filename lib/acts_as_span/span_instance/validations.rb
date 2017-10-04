@@ -5,22 +5,8 @@ module ActsAsSpan
 
       included do
         def validate
-          validate_start_date
-          validate_end_date
           validate_start_date_less_than_or_equal_to_end_date
           validate_overlap
-        end
-
-        def validate_start_date
-          if start_field_required && start_date.blank?
-            span_model.errors.add(start_field, :blank)
-          end
-        end
-
-        def validate_end_date
-          if end_field_required && end_date.blank?
-            span_model.errors.add(end_field, :blank)
-          end
         end
 
         def validate_start_date_less_than_or_equal_to_end_date

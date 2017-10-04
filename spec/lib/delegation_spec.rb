@@ -72,18 +72,6 @@ RSpec.describe "Span" do
       span_model.span_status_on
     end
 
-    it "should delegate span_status_to_s" do
-      expect(span_instance).to receive(:span_status_to_s).and_return(true)
-
-      span_model.span_status_to_s
-    end
-
-    it "should delegate span_status_to_s_on" do
-      expect(span_instance).to receive(:span_status_to_s_on).and_return(true)
-
-      span_model.span_status_to_s_on
-    end
-
     it "should delegate current?" do
       expect(span_instance).to receive(:current?).and_return(true)
 

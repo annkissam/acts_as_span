@@ -14,8 +14,6 @@ module ActsAsSpan
       @options ||= {
         :start_field => :start_date,
         :end_field => :end_date,
-        :start_field_required => false,
-        :end_field_required => false,
         :span_overlap_scope => nil,
         :span_overlap_count => nil,
         :name => :default
@@ -41,8 +39,6 @@ module ActsAsSpan
 
       delegate :span_status,
                :span_status_on,
-               :span_status_to_s,
-               :span_status_to_s_on,
                :current?,
                :current_on?,
                :future?,

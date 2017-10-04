@@ -11,12 +11,10 @@ module ActsAsSpan
     include ActsAsSpan::SpanInstance::Overlap
 
     delegate :start_field,
-                                              :end_field,
-                                              :start_field_required,
-                                              :end_field_required,
-                                              :exclude_end,
-                                              :span_overlap_scope,
-                                              :span_overlap_count, to: :@acts_as_span_definition
+             :end_field,
+             :exclude_end,
+             :span_overlap_scope,
+             :span_overlap_count, to: :@acts_as_span_definition
 
     delegate :new_record?, to: :span_model
 
