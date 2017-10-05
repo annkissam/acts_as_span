@@ -28,8 +28,6 @@ RSpec.describe "acts_as_span" do
       expect(span_definition.start_field).to eq(:start_date)
       expect(span_definition.end_field).to eq(:end_date)
       expect(span_definition.exclude_end).to be_falsey
-      expect(span_definition.span_overlap_scope).to be_nil
-      expect(span_definition.span_overlap_count).to be_nil
       expect(span_definition.name).to eq(:default)
     end
 

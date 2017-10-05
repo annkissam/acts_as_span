@@ -14,8 +14,6 @@ module ActsAsSpan
       @options ||= {
         :start_field => :start_date,
         :end_field => :end_date,
-        :span_overlap_scope => nil,
-        :span_overlap_count => nil,
         :name => :default
       }
     end
@@ -31,9 +29,6 @@ module ActsAsSpan
       self.send(:include, ActsAsSpan::IncludedInstanceMethods)
 
       options = OpenStruct.new(args.last.is_a?(Hash) ? ActsAsSpan.options.merge(args.pop) : ActsAsSpan.options)
-
-      #if span_overlap_scope is specified the span_overlap_count defaults to 0
-      options.span_overlap_count ||= 0 if options.span_overlap_scope
 
       acts_as_span_definitions[options.name] = options
 
@@ -66,14 +61,6 @@ module ActsAsSpan
   end
 
   module ExtendedClassMethods
-    def overlap(test_record)
-      overlap_for(test_record, :default, :default)
-    end
-
-    def overlap_for(test_record, test_record_span_name = :default, this_span_name = :default)
-      span_for(this_span_name).overlap(test_record.span_for(test_record_span_name))
-    end
-
     def spans
       acts_as_span_definitions.keys.map { |acts_as_span_definition_name| span_for(acts_as_span_definition_name) }
     end
@@ -111,17 +98,9 @@ module ActsAsSpan
     def validate_spans
       spans.each(&:validate)
     end
-
-    #This syntax assumes :default span
-    def overlap?(other_record)
-      overlap_for?(other_record, :default, :default)
-    end
-
-    #record.span_for(:this_span_name).overlap?(other_record.span_for(:other_record_span_name))
-    def overlap_for?(other_record, this_span_name = :default, other_record_span_name = :default)
-      span_for(this_span_name).overlap?(other_record.span_for(other_record_span_name))
-    end
   end
 end
 
-ActiveRecord::Base.send(:include, ActsAsSpan)
+if Object.const_defined?("ActiveRecord")
+  ActiveRecord::Base.send(:include, ActsAsSpan)
+end

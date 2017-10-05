@@ -7,19 +7,24 @@ module ActsAsSpan
 
       included do
         def current(query_date = Date.today)
-          klass.where(["(#{table_name}.#{start_field} <= :query_date OR #{table_name}.#{start_field} IS NULL) AND (#{table_name}.#{end_field} >= :query_date OR #{table_name}.#{end_field} IS NULL)", { :query_date => query_date } ] )
+          klass.where(
+            (arel_table[start_field].lteq(query_date).or(arel_table[start_field].eq(nil))).
+            and(
+              arel_table[end_field].eq(nil).or(arel_table[end_field].gteq(query_date))
+            )
+          )
         end
 
         alias_method :current_on, :current
 
         def future(query_date = Date.today)
-          klass.where(["#{table_name}.#{start_field} > :query_date", { :query_date => query_date } ] )
+          klass.where(arel_table[start_field].gt(query_date))
         end
 
         alias_method :future_on, :future
 
         def expired(query_date = Date.today)
-          klass.where(["#{table_name}.#{end_field} < :query_date", { :query_date => query_date } ] )
+          klass.where(arel_table[end_field].lt(query_date))
         end
 
         alias_method :expired_on, :expired

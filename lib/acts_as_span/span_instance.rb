@@ -1,6 +1,5 @@
 require 'acts_as_span/span_instance/validations'
 require 'acts_as_span/span_instance/status'
-require 'acts_as_span/span_instance/overlap'
 
 require 'active_support/core_ext/module/delegation'
 
@@ -8,13 +7,10 @@ module ActsAsSpan
   class SpanInstance
     include ActsAsSpan::SpanInstance::Validations
     include ActsAsSpan::SpanInstance::Status
-    include ActsAsSpan::SpanInstance::Overlap
 
     delegate :start_field,
              :end_field,
-             :exclude_end,
-             :span_overlap_scope,
-             :span_overlap_count, to: :@acts_as_span_definition
+             :exclude_end, to: :@acts_as_span_definition
 
     delegate :new_record?, to: :span_model
 
