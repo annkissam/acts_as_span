@@ -3,6 +3,7 @@ require 'acts_as_span'
 
 require 'active_record'
 require 'active_support'
+require 'spec_models'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

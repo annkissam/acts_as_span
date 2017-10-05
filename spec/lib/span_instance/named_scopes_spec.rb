@@ -1,22 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe "a basic model using acts_as_span" do
-  before(:all) do
-    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
-    ActiveRecord::Migration.verbose = false
-
-    ActiveRecord::Schema.define do
-      create_table :span_models, force: true do |t|
-        t.date :start_date
-        t.date :end_date
-      end
-    end
-
-    class SpanModel < ActiveRecord::Base
-      acts_as_span
-    end
-  end
-
   context "named_scopes and current?, expired?, and future?" do
     #    -2  -1   T  +1  +2      C F E
     # A   |---|                      E

@@ -1,23 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe "Span" do
-  before(:all) do
-    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
-    ActiveRecord::Migration.verbose = false
-
-    ActiveRecord::Schema.define do
-      create_table :span_models, force: true do |t|
-        t.date :start_date
-        t.date :end_date
-      end
-    end
-
-    class SpanModel < ActiveRecord::Base
-      acts_as_span :start_field => :start_date,
-                   :end_field => :end_date
-    end
-  end
-
   context "start_date & end_date" do
     let(:span_model) { SpanModel.new(:start_date => Date.today, :end_date => Date.today + 1) }
     let(:span) { span_model.span }
