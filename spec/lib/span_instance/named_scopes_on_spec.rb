@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe "a basic model using acts_as_span" do
   before(:all) do
-    @query_date = Date.today + 1.month
+    @query_date = Date.current + 1.month
   end
 
   context "named_scopes and current_on?, expired_on?, and future_on?" do

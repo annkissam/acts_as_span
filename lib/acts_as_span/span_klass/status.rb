@@ -6,7 +6,7 @@ module ActsAsSpan
       extend ActiveSupport::Concern
 
       included do
-        def current(query_date = Date.today)
+        def current(query_date = Date.current)
           klass.where(
             (arel_table[start_field].lteq(query_date).or(arel_table[start_field].eq(nil))).
             and(
@@ -17,13 +17,13 @@ module ActsAsSpan
 
         alias_method :current_on, :current
 
-        def future(query_date = Date.today)
+        def future(query_date = Date.current)
           klass.where(arel_table[start_field].gt(query_date))
         end
 
         alias_method :future_on, :future
 
-        def expired(query_date = Date.today)
+        def expired(query_date = Date.current)
           klass.where(arel_table[end_field].lt(query_date))
         end
 

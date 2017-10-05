@@ -18,7 +18,7 @@ RSpec.describe "a basic model using acts_as_span" do
     # M           <->            C
     context "A) start_date < today & end_date < today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today - 2.days, :end_date => Date.today - 1.day)
+        @span_model = SpanModel.create!(:start_date => Date.current - 2.days, :end_date => Date.current - 1.day)
       end
 
       it "should NOT be included in #current" do
@@ -39,7 +39,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "B) start_date < today & end_date == today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today - 2.day, :end_date => Date.today)
+        @span_model = SpanModel.create!(:start_date => Date.current - 2.day, :end_date => Date.current)
       end
 
       it "should be included in #current" do
@@ -60,7 +60,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "C) start_date < today & end_date > today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today - 2.day, :end_date => Date.today + 2.day)
+        @span_model = SpanModel.create!(:start_date => Date.current - 2.day, :end_date => Date.current + 2.day)
       end
 
       it "should be included in #current" do
@@ -81,7 +81,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "D) start_date == today & end_date == today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today, :end_date => Date.today)
+        @span_model = SpanModel.create!(:start_date => Date.current, :end_date => Date.current)
       end
 
       it "should be included in #current" do
@@ -102,7 +102,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "E) start_date == today & end_date > today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today, :end_date => Date.today + 2.day)
+        @span_model = SpanModel.create!(:start_date => Date.current, :end_date => Date.current + 2.day)
       end
 
       it "should be included in #current" do
@@ -123,7 +123,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "F) start_date > today & end_date > today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today + 1.day, :end_date => Date.today + 2.days)
+        @span_model = SpanModel.create!(:start_date => Date.current + 1.day, :end_date => Date.current + 2.days)
       end
 
       it "should NOT be included in #current" do
@@ -144,7 +144,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "G) start_date < today & end_date == nil" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today - 2.day, :end_date => nil)
+        @span_model = SpanModel.create!(:start_date => Date.current - 2.day, :end_date => nil)
       end
 
       it "should be included in #current" do
@@ -165,7 +165,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "H) start_date == today & end_date == nil" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today, :end_date => nil)
+        @span_model = SpanModel.create!(:start_date => Date.current, :end_date => nil)
       end
 
       it "should be included in #current" do
@@ -186,7 +186,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "I) start_date > today & end_date == nil" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => Date.today + 1.day, :end_date => nil)
+        @span_model = SpanModel.create!(:start_date => Date.current + 1.day, :end_date => nil)
       end
 
       it "should NOT be included in #current" do
@@ -207,7 +207,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "J) start_date == nil & end_date < today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => nil, :end_date => Date.today - 1.day)
+        @span_model = SpanModel.create!(:start_date => nil, :end_date => Date.current - 1.day)
       end
 
       it "should NOT be included in #current" do
@@ -228,7 +228,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "K) start_date == nil & end_date == today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => nil, :end_date => Date.today)
+        @span_model = SpanModel.create!(:start_date => nil, :end_date => Date.current)
       end
 
       it "should be included in #current" do
@@ -249,7 +249,7 @@ RSpec.describe "a basic model using acts_as_span" do
 
     context "L) start_date == nil & end_date > today" do
       before(:all) do
-        @span_model = SpanModel.create!(:start_date => nil, :end_date => Date.today + 2.day)
+        @span_model = SpanModel.create!(:start_date => nil, :end_date => Date.current + 2.day)
       end
 
       it "should be included in #current" do

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe "Span" do
-  let(:span_model) { SpanModel.new(:start_date => Date.today, :end_date => nil) }
+  let(:span_model) { SpanModel.new(:start_date => Date.current, :end_date => nil) }
   let(:span_klass) { SpanModel.span }
   let(:span_instance) { span_model.span }
 

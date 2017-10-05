@@ -10,7 +10,7 @@ RSpec.describe "Span" do
 
   it "should require a start_date before the end_date" do
     SpanModel.acts_as_span
-    span_model = SpanModel.new(:start_date => Date.today, :end_date => Date.today - 1)
+    span_model = SpanModel.new(:start_date => Date.current, :end_date => Date.current - 1)
 
     expect(span_model).not_to be_valid
     expect(span_model.errors[:end_date].size).to eq(1)
