@@ -1,5 +1,6 @@
 require 'bundler/setup'
 require 'acts_as_span'
+require 'pry'
 
 require 'active_record'
 require 'active_support'
