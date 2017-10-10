@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", "~> 3.0"
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "has_siblings", "~> 0.2.7"
+  s.add_development_dependency "temping"
 
   s.add_runtime_dependency('activerecord', '>= 4.2.0')
   s.add_runtime_dependency('activesupport', '>= 4.2.0')
