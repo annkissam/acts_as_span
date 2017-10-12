@@ -30,6 +30,20 @@ module ActsAsSpan
         alias_method :expired_on, :expired
         alias_method :past_on, :expired
         alias_method :past, :expired
+
+
+        def current_or_future_on(query_date = Date.current)
+          klass.where(
+            arel_table[start_field].lteq(query_date).
+            and(
+              arel_table[end_field].eq(nil).
+              or(arel_table[end_field].gteq(query_date))
+            ).
+            or(arel_table[start_field].gt(query_date))
+          )
+        end
+
+        alias_method :current_or_future, :current_or_future_on
       end
     end
   end
