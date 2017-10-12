@@ -27,6 +27,7 @@ Temping.create :one_parent_child do
   has_siblings through: [:mama]
 
   validates_with ActsAsSpan::NoOverlapValidator, scope: proc { siblings }
+  validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama]
 end
 
 Temping.create :two_parent_child do
@@ -45,13 +46,24 @@ Temping.create :two_parent_child do
   has_siblings through: [:mama, :papa]
 
   validates_with ActsAsSpan::NoOverlapValidator, scope: proc { siblings }
+  validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama, :papa]
 end
 
 Temping.create :mama do
+  with_columns do |t|
+    t.date :start_date
+    t.date :end_date
+  end
+
   has_many :one_parent_children
   has_many :two_parent_children
 end
 
 Temping.create :papa do
+  with_columns do |t|
+    t.date :start_date
+    t.date :end_date
+  end
+
   has_many :one_parent_children
 end

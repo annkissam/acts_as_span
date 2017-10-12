@@ -4,6 +4,8 @@ require 'acts_as_span/span_klass'
 require 'acts_as_span/span_instance'
 
 require 'acts_as_span/no_overlap_validator'
+require 'acts_as_span/within_parent_date_span_validator'
+
 
 require 'active_support'
 require 'active_record'
