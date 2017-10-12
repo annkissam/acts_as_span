@@ -28,6 +28,8 @@ module ActsAsSpan
         end
 
         alias_method :expired_on, :expired
+        alias_method :past_on, :expired
+        alias_method :past, :expired
       end
     end
   end
