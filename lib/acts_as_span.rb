@@ -43,7 +43,9 @@ module ActsAsSpan
                :future?,
                :future_on?,
                :expired?,
-               :expired_on?, to: :span
+               :expired_on?,
+               :past?,
+               :past_on?, to: :span
 
       delegate :acts_as_span_definitions, to: :class
 
@@ -53,7 +55,11 @@ module ActsAsSpan
                  :future,
                  :future_on,
                  :expired,
-                 :expired_on, to: :span
+                 :expired_on,
+                 :past_on,
+                 :past,
+                 :current_or_future_on,
+                 :current_or_future, to: :span
       end
 
       validate :validate_spans
