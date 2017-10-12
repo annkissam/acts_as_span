@@ -2,7 +2,6 @@ require 'ostruct'
 require 'acts_as_span/version'
 require 'acts_as_span/span_klass'
 require 'acts_as_span/span_instance'
-require 'acts_as_span/with_parents'
 
 require 'acts_as_span/no_overlap_validator'
 
