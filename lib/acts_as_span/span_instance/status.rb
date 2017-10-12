@@ -4,7 +4,7 @@ module ActsAsSpan
       extend ActiveSupport::Concern
 
       included do
-        def span_status(query_date = Date.current)
+        def span_status_on(query_date = Date.current)
           if future?(query_date)
             :future
           elsif expired?(query_date)
@@ -16,27 +16,41 @@ module ActsAsSpan
           end
         end
 
-        alias_method :span_status_on, :span_status
-
-        def current?(query_date = Date.current)
-          !future?(query_date) && !expired?(query_date)
+        def span_status
+          span_status_on
         end
 
-        alias_method :current_on?, :current?
+        def current_on?(query_date = Date.current)
+          !future_on?(query_date) && !expired_on?(query_date)
+        end
 
-        def future?(query_date = Date.current)
+        def current?
+          current_on?
+        end
+
+        def future_on?(query_date = Date.current)
           start_date && start_date > query_date
         end
 
-        alias_method :future_on?, :future?
+        def future?
+          future_on?
+        end
 
-        def expired?(query_date = Date.current)
+        def expired_on?(query_date = Date.current)
           end_date && end_date < query_date
         end
 
-        alias_method :expired_on?, :expired?
-        alias_method :past_on?, :expired?
-        alias_method :past?, :expired?
+        def expired?
+          expired_on?
+        end
+
+        def past_on?
+          expired_on?
+        end
+
+        def past?
+          expired?
+        end
       end
     end
   end
