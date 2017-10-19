@@ -36,6 +36,7 @@ module ActsAsSpan
 
       acts_as_span_definitions[options.name] = options
 
+      # TODO add tests that check delegation of all methos in span
       delegate :span_status,
                :span_status_on,
                :current?,
@@ -49,6 +50,7 @@ module ActsAsSpan
 
       delegate :acts_as_span_definitions, to: :class
 
+      # TODO idem above
       class << self
         delegate :current,
                  :current_on,
