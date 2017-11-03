@@ -13,7 +13,8 @@ module ActsAsSpan
         record.errors.add(
           :base,
           error_type.to_sym,
-          model_name: record.class.model_name.plural.humanize,
+          model_name: record.class.model_name.human,
+          model_name_plural: record.class.model_name.plural.humanize,
           start_date: record.start_date,
           end_date: record.end_date,
           count: overlapping_records.size,
