@@ -13,7 +13,7 @@ module ActsAsSpan
         record.errors.add(
           :base,
           error_type.to_sym,
-          model_name: record.class.model_name.human,
+          model_name: record.class.model_name.plural.humanize,
           start_date: record.start_date,
           end_date: record.end_date,
           count: overlapping_records.size,
@@ -30,10 +30,6 @@ module ActsAsSpan
       start_date = record.start_date || Date.current
       end_date = record.end_date
       arel_table = record.class.arel_table
-
-      # overlap_scope = klass.where(
-      #   ["(#{table_name}.#{start_date_field} IS NULL OR :end_date IS NULL OR #{table_name}.#{start_date_field} <= :end_date) AND (#{table_name}.#{end_date_field} IS NULL OR :start_date IS NULL OR :start_date <= #{table_name}.#{end_date_field})", { :start_date => test_span.start_date, :end_date => test_span.end_date } ] )
-
 
       if end_date
         scope.where(
