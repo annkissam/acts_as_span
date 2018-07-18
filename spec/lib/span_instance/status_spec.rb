@@ -1,49 +1,36 @@
 require 'spec_helper'
 
-describe "Span" do
-  before(:each) do
-    build_model :span_model do
-      date  :start_date
-      date  :end_date
-      
-      acts_as_span
-    end
-  end
-  
-  let(:span_model) { SpanModel.new(:start_date => Date.today, :end_date => nil) }
+RSpec.describe "Span" do
+  let(:span_model) { SpanModel.new(:start_date => Date.current, :end_date => nil) }
   let(:span) { span_model.span }
-  
-  context "#span_status & #span_status_to_s" do
+
+  context "#span_status" do
     before(:each) do
-      span.stub!(:current?).and_return(false)
-      span.stub!(:future?).and_return(false)
-      span.stub!(:expired?).and_return(false)
+      allow(span).to receive(:current?).and_return(false)
+      allow(span).to receive(:future?).and_return(false)
+      allow(span).to receive(:expired?).and_return(false)
     end
-    
+
     it "should return :unknown when all_conditions == false" do
-      span.span_status.should == :unknown
-      span.span_status_to_s.should == 'Unknown'
+      expect(span.span_status).to eq(:unknown)
     end
-    
+
     it "should return :current when current? == true" do
-      span.should_receive(:current?).twice.and_return(true)
-      
-      span.span_status.should == :current
-      span.span_status_to_s.should == 'Current'
+      expect(span).to receive(:current?).once.and_return(true)
+
+      expect(span.span_status).to eq(:current)
     end
-    
+
     it "should return :current when future? == true" do
-      span.should_receive(:future?).twice.and_return(true)
-      
-      span.span_status.should == :future
-      span.span_status_to_s.should == 'Future'
+      expect(span).to receive(:future?).once.and_return(true)
+
+      expect(span.span_status).to eq(:future)
     end
-    
+
     it "should return :current when expired? == true" do
-      span.should_receive(:expired?).twice.and_return(true)
-      
-      span.span_status.should == :expired
-      span.span_status_to_s.should == 'Expired'
+      expect(span).to receive(:expired?).once.and_return(true)
+
+      expect(span.span_status).to eq(:expired)
     end
   end
 end

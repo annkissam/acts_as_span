@@ -2,9 +2,9 @@ module ActsAsSpan
   class SpanInstance
     module Status
       extend ActiveSupport::Concern
-      
-      module InstanceMethods
-        def span_status(query_date = Date.today)
+
+      included do
+        def span_status(query_date = Date.current)
           if future?(query_date)
             :future
           elsif expired?(query_date)
@@ -18,38 +18,25 @@ module ActsAsSpan
 
         alias_method :span_status_on, :span_status
 
-        def span_status_to_s(query_date = Date.today)
-          case span_status(query_date)
-          when :future
-            "Future"
-          when :expired
-            "Expired"
-          when :current
-            "Current"
-          when :unknown
-            "Unknown"
-          end
-        end
-
-        alias_method :span_status_to_s_on, :span_status_to_s
-        
-        def current?(query_date = Date.today)
+        def current?(query_date = Date.current)
           !future?(query_date) && !expired?(query_date)
         end
-        
+
         alias_method :current_on?, :current?
 
-        def future?(query_date = Date.today)
+        def future?(query_date = Date.current)
           start_date && start_date > query_date
         end
-        
+
         alias_method :future_on?, :future?
 
-        def expired?(query_date = Date.today)
+        def expired?(query_date = Date.current)
           end_date && end_date < query_date
         end
-        
+
         alias_method :expired_on?, :expired?
+        alias_method :past_on?, :expired?
+        alias_method :past?, :expired?
       end
     end
   end

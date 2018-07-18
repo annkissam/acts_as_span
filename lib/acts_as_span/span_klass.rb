@@ -1,25 +1,19 @@
 require 'acts_as_span/span_klass/status'
-require 'acts_as_span/span_klass/overlap'
+
+require 'active_support/core_ext/module/delegation'
 
 module ActsAsSpan
   class SpanKlass
-    extend Forwardable
-    
     include ActsAsSpan::SpanKlass::Status
-    include ActsAsSpan::SpanKlass::Overlap
-    
-    def_delegators :@acts_as_span_definition, :start_date_field,
-                                              :end_date_field,
-                                              :start_date_field_required,
-                                              :end_date_field_required,
-                                              :exclude_end,
-                                              :span_overlap_scope,
-                                              :span_overlap_count
-    
-    def_delegators :klass, :table_name
-    
+
+    delegate :start_field,
+             :end_field,
+             :exclude_end, to: :@acts_as_span_definition
+
+    delegate :table_name, :arel_table, to: :klass, allow_nil: true
+
     attr_reader :name, :klass, :acts_as_span_definition
-    
+
     def initialize(name, klass, acts_as_span_definition)
       @name = name
       @klass = klass
