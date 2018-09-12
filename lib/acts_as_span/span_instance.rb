@@ -1,3 +1,4 @@
+require 'acts_as_span/span_instance/decorator'
 require 'acts_as_span/span_instance/validations'
 require 'acts_as_span/span_instance/status'
 
@@ -5,6 +6,7 @@ require 'active_support/core_ext/module/delegation'
 
 module ActsAsSpan
   class SpanInstance
+    include ActsAsSpan::SpanInstance::Decorator
     include ActsAsSpan::SpanInstance::Validations
     include ActsAsSpan::SpanInstance::Status
 

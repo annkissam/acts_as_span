@@ -46,7 +46,8 @@ module ActsAsSpan
                :expired?,
                :expired_on?,
                :past?,
-               :past_on?, to: :span
+               :past_on?,
+               :span_to_s, to: :span
 
       delegate :acts_as_span_definitions, to: :class
 
