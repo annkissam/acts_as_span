@@ -41,7 +41,7 @@ module ActsAsSpan
       unless unsupported_options.empty?
         raise ArgumentError,
           'Unsupported option(s): ' \
-          "#{unsupported_options.map { |o| "'" << o.to_s << "'" }.join(', ')}"
+          "#{unsupported_options.map { |o| "'#{o}'" }.join(', ')}"
       end
 
       acts_as_span_definitions[options.name] = options
