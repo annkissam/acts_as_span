@@ -4,6 +4,15 @@ require 'has_siblings'
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
 ActiveRecord::Base.logger = Logger.new(STDOUT) if ENV["DEBUG"]
 
+Temping.create :spannable_model do
+  with_columns do |t|
+    t.date :starting_date
+    t.date :ending_date
+
+    t.integer :unique_by_date_range
+  end
+end
+
 Temping.create :span_model do
   with_columns do |t|
     t.date :start_date
