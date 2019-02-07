@@ -1,6 +1,27 @@
 require 'spec_helper'
 
 RSpec.describe "acts_as_span" do
+  it 'raises an ArgumentError when unsupported arguments are passed' do
+    expect do
+      SpannableModel.acts_as_span(
+        start_field: :starting_date,
+        end_field: :ending_date,
+        span_overlap_scope: [:unique_by_date_range]
+      )
+    end.to raise_error(
+      ArgumentError, "Unsupported option(s): 'span_overlap_scope'"
+    )
+  end
+
+  it "doesn't raise an ArgumentError when valid arguments are passed" do
+    expect do
+      SpannableModel.acts_as_span(
+        start_field: :starting_date,
+        end_field: :ending_date
+      )
+    end.not_to raise_error
+  end
+
   context "ClassMethods" do
     it "should have 1 acts_as_span_definition" do
       expect(SpanModel.acts_as_span_definitions.size).to eq(1)

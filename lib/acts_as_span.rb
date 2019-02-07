@@ -13,6 +13,8 @@ require 'active_record'
 module ActsAsSpan
   extend ActiveSupport::Concern
 
+  OPTIONS = %i[start_field end_field name].freeze
+
   class << self
     def options
       @options ||= {
@@ -32,7 +34,16 @@ module ActsAsSpan
       self.send(:extend, ActsAsSpan::ExtendedClassMethods)
       self.send(:include, ActsAsSpan::IncludedInstanceMethods)
 
+      # TODO: There's some refactoring that could be done here using keyword args (or the more standard old hash arg pattern)
       options = OpenStruct.new(args.last.is_a?(Hash) ? ActsAsSpan.options.merge(args.pop) : ActsAsSpan.options)
+
+      unsupported_options =
+        options.to_h.keys.reject { |opt| OPTIONS.include? opt }
+      unless unsupported_options.empty?
+        raise ArgumentError,
+          'Unsupported option(s): ' <<
+          unsupported_options.map { |o| "'#{o}'" }.join(', ')
+      end
 
       acts_as_span_definitions[options.name] = options
 
