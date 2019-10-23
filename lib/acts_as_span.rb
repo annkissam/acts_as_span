@@ -18,9 +18,9 @@ module ActsAsSpan
   class << self
     def options
       @options ||= {
-        :start_field => :start_date,
-        :end_field => :end_date,
-        :name => :default
+        start_field: :start_date,
+        end_field: :end_date,
+        name: :default
       }
     end
 
