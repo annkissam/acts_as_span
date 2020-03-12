@@ -45,21 +45,19 @@ module ActsAsSpan
 
         alias_method :current_or_future, :current_or_future_on
 
-        if defined?(Ransack)
-          def ransackable_scopes(_auth_object = nil)
-            super + %i[
-              current
-              current_on
-              future
-              future_on
-              expired
-              expired_on
-              past
-              past_on
-              current_or_future
-              current_or_future_on
-            ]
-          end
+        def ransackable_scopes(_auth_object = nil)
+          %i[
+            current
+            current_on
+            future
+            future_on
+            expired
+            expired_on
+            past
+            past_on
+            current_or_future
+            current_or_future_on
+          ]
         end
       end
     end

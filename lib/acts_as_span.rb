@@ -72,7 +72,8 @@ module ActsAsSpan
                  :past_on,
                  :past,
                  :current_or_future_on,
-                 :current_or_future, to: :span
+                 :current_or_future,
+                 :ransackable_scopes, to: :span
       end
 
       validate :validate_spans
