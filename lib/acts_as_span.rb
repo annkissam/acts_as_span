@@ -6,9 +6,13 @@ require 'acts_as_span/span_instance'
 require 'acts_as_span/no_overlap_validator'
 require 'acts_as_span/within_parent_date_span_validator'
 
+require 'acts_as_span/end_date_propagator'
 
 require 'active_support'
 require 'active_record'
+
+require 'i18n'
+I18n.load_path = Dir['./config/locales/**/*.yml']
 
 module ActsAsSpan
   extend ActiveSupport::Concern

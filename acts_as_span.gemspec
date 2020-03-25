@@ -36,4 +36,5 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency('activerecord', '>= 4.2.0')
   s.add_runtime_dependency('activesupport', '>= 4.2.0')
+  s.add_runtime_dependency('i18n', '>= 1.7.0')
 end

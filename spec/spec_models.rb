@@ -76,3 +76,105 @@ Temping.create :papa do
 
   has_many :one_parent_children
 end
+
+# EndDatePropagator spec models
+Temping.create :base do
+  has_many :children, dependent: :destroy
+  has_many :dogs, dependent: :destroy
+  has_many :birds, through: :children
+  has_many :tales, dependent: :destroy
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+  end
+end
+
+Temping.create :cat_owner do
+  has_many :cats, dependent: :destroy
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :start_date
+    t.date :end_date
+  end
+end
+
+Temping.create :cat do
+  belongs_to :cat_owner
+
+  with_columns do |t|
+    t.belongs_to :cat_owner
+  end
+end
+
+Temping.create :other_base do
+  has_many :children, dependent: :destroy
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+  end
+end
+
+# has non-standard start_ and end_field names
+Temping.create :child do
+  belongs_to :base
+  belongs_to :other_base
+  has_many :birds, dependent: :destroy
+
+  acts_as_span(
+    start_field: :date_of_birth,
+    end_field: :emancipation_date
+  )
+
+  with_columns do |t|
+    t.date :date_of_birth
+    t.date :emancipation_date
+    t.belongs_to :base
+  end
+end
+
+Temping.create :dog do
+  belongs_to :base
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :start_date
+    t.date :end_date
+    t.belongs_to :base
+  end
+end
+
+
+Temping.create :bird do
+  belongs_to :child
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+    t.belongs_to :child
+  end
+end
+
+Temping.create :tale do
+  belongs_to :base
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+    t.belongs_to :base
+  end
+end
+
+
