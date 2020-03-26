@@ -77,7 +77,7 @@ Temping.create :papa do
   has_many :one_parent_children
 end
 
-# EndDatePropagator spec models
+# fulfill association requirements for EndDatePropagator
 Temping.create :base do
   has_many :children, dependent: :destroy
   has_many :dogs, dependent: :destroy
