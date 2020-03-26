@@ -22,21 +22,21 @@ module ActsAsSpan
     private
 
     def child_record_started_before_parent_record(record, parent)
-      record.start_date.present? && parent.start_date.present? &&
-        record.start_date < parent.start_date
+      record.span.start_date.present? && parent.span.start_date.present? &&
+        record.span.start_date < parent.span.start_date
     end
 
     def child_record_ended_after_parent_record(record, parent)
-      record.end_date.present? && parent.end_date.present? &&
-        record.end_date > parent.end_date
+      record.span.end_date.present? && parent.span.end_date.present? &&
+        record.span.end_date > parent.span.end_date
     end
 
     def child_record_without_start_date(record, parent)
-      record.start_date.nil? && parent.start_date.present?
+      record.span.start_date.nil? && parent.span.start_date.present?
     end
 
     def child_record_without_end_date(record, parent)
-      record.end_date.nil? && parent.end_date.present?
+      record.span.end_date.nil? && parent.span.end_date.present?
     end
   end
 end
