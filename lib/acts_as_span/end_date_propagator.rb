@@ -50,8 +50,9 @@ module ActsAsSpan
     # Main interface function. See class documentation for details.
     def call(options = {})
       if options.values_at(:save, :save!).all? { |v| !!v }
-        fail ArgumentError, "Options must include exactly one of :save or " +
-          ":save!, but both were present."
+        fail ArgumentError, I18n.t(
+          'both_saves_true', scope: %i[acts_as_span end_date_propagator]
+        )
       end
 
       # default: run with transaction

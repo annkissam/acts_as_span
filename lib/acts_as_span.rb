@@ -11,8 +11,7 @@ require 'acts_as_span/end_date_propagator'
 require 'active_support'
 require 'active_record'
 
-require 'i18n'
-I18n.load_path += Dir['./config/locales/**/*.yml']
+I18n.load_path += Dir[File.join(File.dirname(__dir__), 'config', 'locales', '**', 'acts_as_span.yml')]
 
 module ActsAsSpan
   extend ActiveSupport::Concern
@@ -26,6 +25,10 @@ module ActsAsSpan
         :end_field => :end_date,
         :name => :default
       }
+    end
+
+    def root
+      File.dirname __dir__
     end
 
     def configure
