@@ -64,6 +64,8 @@ Temping.create :mama do
     t.date :end_date
   end
 
+  acts_as_span
+
   has_many :one_parent_children
   has_many :two_parent_children
 end
@@ -73,6 +75,8 @@ Temping.create :papa do
     t.date :start_date
     t.date :end_date
   end
+
+  acts_as_span
 
   has_many :one_parent_children
 end
@@ -128,6 +132,9 @@ Temping.create :child do
   belongs_to :other_base
   has_many :birds, dependent: :destroy
 
+  validates_with ActsAsSpan::WithinParentDateSpanValidator,
+    parents: [:base]
+
   acts_as_span(
     start_field: :date_of_birth,
     end_field: :emancipation_date
@@ -136,6 +143,7 @@ Temping.create :child do
   with_columns do |t|
     t.date :date_of_birth
     t.date :emancipation_date
+    t.string :manual_invalidation
     t.belongs_to :base
   end
 end
@@ -155,6 +163,9 @@ end
 
 Temping.create :bird do
   belongs_to :child
+
+  validates_with ActsAsSpan::WithinParentDateSpanValidator,
+    parents: [:child]
 
   acts_as_span
 
