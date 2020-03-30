@@ -102,7 +102,7 @@ module ActsAsSpan
       end
 
       children(object).each do |child|
-        # skip child if child end_date is greater than parent end_date
+        # skip child unless child end_date is greater than parent end_date
         next unless child.span.end_date.nil? ||
           child.span.end_date > object.span.end_date
 
