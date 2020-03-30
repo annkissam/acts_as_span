@@ -27,10 +27,6 @@ module ActsAsSpan
       }
     end
 
-    def root
-      File.dirname __dir__
-    end
-
     def configure
       yield(self) if block_given?
     end
