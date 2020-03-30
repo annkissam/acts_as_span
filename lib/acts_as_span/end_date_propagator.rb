@@ -79,6 +79,8 @@ module ActsAsSpan
       result
     end
 
+    private
+
     def call_with_transaction
       propagated_object = nil
       ActiveRecord::Base.transaction do
@@ -141,8 +143,6 @@ module ActsAsSpan
       # return the object, with any newly-added errors
       object
     end
-
-    private
 
     def object_has_errors?(object)
       object.errors && object.errors.messages.values.flatten.any?
