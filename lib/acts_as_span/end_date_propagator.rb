@@ -83,7 +83,7 @@ module ActsAsSpan
 
     def call_with_transaction
       propagated_object = nil
-      ActiveRecord::Base.transaction do
+      ActiveRecord::Base.transaction(requires_new: true) do
         propagated_object = call_sans_transaction
         if object_has_errors?(propagated_object)
           raise ActiveRecord::Rollback,
