@@ -17,11 +17,6 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  # Enable the pattern
-  # expect{ event }.to not_change(x).and not_change(y)...
-  # for checking if one event does NOT change several objects
-  RSpec::Matchers.define_negated_matcher(:not_change, :change)
-
   config.after do
     Temping.cleanup
   end
