@@ -12,15 +12,9 @@ module ActsAsSpan
 
       if overlapping_records.any? && instance_scope
 
-        error_type = if overlapping_records.size == 1
-                       "no_overlap.one"
-                     else
-                       "no_overlap.other"
-                     end
-
         record.errors.add(
           :base,
-          error_type.to_sym,
+          :no_overlap,
           model_name: record.class.model_name.human,
           model_name_plural: record.class.model_name.plural.humanize,
           start_date: record.span.start_date,
