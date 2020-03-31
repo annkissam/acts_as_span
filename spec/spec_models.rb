@@ -64,6 +64,8 @@ Temping.create :mama do
     t.date :end_date
   end
 
+  acts_as_span
+
   has_many :one_parent_children
   has_many :two_parent_children
 end
@@ -74,5 +76,116 @@ Temping.create :papa do
     t.date :end_date
   end
 
+  acts_as_span
+
   has_many :one_parent_children
 end
+
+# fulfill association requirements for EndDatePropagator
+Temping.create :base do
+  has_many :children, dependent: :destroy
+  has_many :dogs, dependent: :destroy
+  has_many :birds, through: :children
+  has_many :tales, dependent: :destroy
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+  end
+end
+
+Temping.create :cat_owner do
+  has_many :cats, dependent: :destroy
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :start_date
+    t.date :end_date
+  end
+end
+
+Temping.create :cat do
+  belongs_to :cat_owner
+
+  with_columns do |t|
+    t.belongs_to :cat_owner
+  end
+end
+
+Temping.create :other_base do
+  has_many :children, dependent: :destroy
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+  end
+end
+
+# has non-standard start_ and end_field names
+Temping.create :child do
+  belongs_to :base
+  belongs_to :other_base
+  has_many :birds, dependent: :destroy
+
+  validates_with ActsAsSpan::WithinParentDateSpanValidator,
+    parents: [:base]
+
+  acts_as_span(
+    start_field: :date_of_birth,
+    end_field: :emancipation_date
+  )
+
+  with_columns do |t|
+    t.date :date_of_birth
+    t.date :emancipation_date
+    t.string :manual_invalidation
+    t.belongs_to :base
+  end
+end
+
+Temping.create :dog do
+  belongs_to :base
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :start_date
+    t.date :end_date
+    t.belongs_to :base
+  end
+end
+
+
+Temping.create :bird do
+  belongs_to :child
+
+  validates_with ActsAsSpan::WithinParentDateSpanValidator,
+    parents: [:child]
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+    t.belongs_to :child
+  end
+end
+
+Temping.create :tale do
+  belongs_to :base
+
+  acts_as_span
+
+  with_columns do |t|
+    t.date :end_date
+    t.date :start_date
+    t.belongs_to :base
+  end
+end
+
+

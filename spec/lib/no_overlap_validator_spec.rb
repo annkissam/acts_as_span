@@ -69,7 +69,7 @@ RSpec.describe ActsAsSpan::NoOverlapValidator do
 
     before do
       all_siblings.each do |sibling|
-        sibling.update_attributes(papa: papa)
+        sibling.update(papa: papa)
       end
 
       new_child.papa = papa
