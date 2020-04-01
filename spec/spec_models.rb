@@ -28,14 +28,22 @@ Temping.create :one_parent_child do
 
     t.date :start_date
     t.date :end_date
+
+    # every one-parent child is a favorite! ...by default
+    t.boolean :favorite, default: true
   end
 
   acts_as_span
 
+  def favorite?
+    favorite
+  end
+
   belongs_to :mama
   has_siblings through: [:mama]
 
-  validates_with ActsAsSpan::NoOverlapValidator, scope: proc { siblings }
+  validates_with ActsAsSpan::NoOverlapValidator,
+    scope: proc { siblings }, instance_scope: proc { favorite? }
   validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama]
 end
 
