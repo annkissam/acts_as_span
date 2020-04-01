@@ -42,6 +42,29 @@ RSpec.describe ActsAsSpan::NoOverlapValidator do
 
   let(:all_siblings) { [brother, sister, brother_from_another_mother] }
 
+  describe 'instance_scope' do
+    let(:child_class) { OneParentChild }
+
+    let(:new_child_start_date) { Date.current - 2 }
+    let(:new_child_end_date) { Date.current + 3 }
+
+    before { new_child.favorite = favorite }
+
+    context 'when instance_scope evaluates to false' do
+      let(:favorite) { false }
+      it 'skips validation on the record for which instance_scope is false' do
+        expect(new_child).to be_valid
+      end
+    end
+
+    context 'when instance_scope evaluates to true' do
+      let(:favorite) { true }
+      it 'validates normally' do
+        expect(new_child).not_to be_valid
+      end
+    end
+  end
+
   describe 'an object with a single parent' do
     let(:child_class) { OneParentChild }
 
