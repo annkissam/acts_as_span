@@ -33,13 +33,5 @@ module ActsAsSpan
     def end_date
       span_model[end_field]
     end
-
-    def start_date_changed?
-      span_model.send("#{start_field}_changed?")
-    end
-
-    def end_date_changed?
-      span_model.send("#{end_field}_changed?")
-    end
   end
 end
