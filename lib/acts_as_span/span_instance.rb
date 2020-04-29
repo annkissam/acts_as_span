@@ -35,11 +35,11 @@ module ActsAsSpan
     end
 
     def start_date_changed?
-      span_model.send("#{start_field}_changed?")
+      span_model.will_save_change_to_attribute?(start_field)
     end
 
     def end_date_changed?
-      span_model.send("#{end_field}_changed?")
+      span_model.will_save_change_to_attribute?(end_field)
     end
   end
 end
