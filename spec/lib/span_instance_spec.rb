@@ -12,5 +12,17 @@ RSpec.describe "Span" do
     it "should return the end_date" do
       expect(span.end_date).to eq(span_model.end_date)
     end
+
+    context "changed?" do
+      it 'returns true when start_date has changed' do
+        span_model.start_date = span_model.start_date + 5
+        expect(span.start_date_changed?).to eq(true)
+      end
+
+      it 'returns true when end_date has changed' do
+        span_model.end_date = span_model.end_date + 5
+        expect(span.end_date_changed?).to eq(true)
+      end
+    end
   end
 end
