@@ -42,9 +42,10 @@ module ActsAsSpan
 
       return unless overlapping_records.any? && instance_scope
 
+      error_message = options[:message] || :no_overlap
       record.errors.add(
         :base,
-        :no_overlap,
+        error_message,
         model_name: record.class.model_name.human,
         model_name_plural: record.class.model_name.plural.humanize,
         start_date: record.span.start_date,

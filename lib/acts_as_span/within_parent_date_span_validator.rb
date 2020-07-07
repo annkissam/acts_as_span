@@ -3,8 +3,10 @@ module ActsAsSpan
     def validate(record)
       parents = options[:parent] || options[:parents]
 
+      error_message = options[:message] || :not_within_parent_date_span
+
       Array(parents).each do |parent|
-        record.errors.add(:base, :not_within_parent_date_span, parent: record.class.human_attribute_name(parent)) if outside_of_parent_date_span?(record, parent)
+        record.errors.add(:base, error_message, parent: record.class.human_attribute_name(parent)) if outside_of_parent_date_span?(record, parent)
       end
     end
 
