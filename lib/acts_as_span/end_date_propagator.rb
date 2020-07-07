@@ -70,12 +70,14 @@ module ActsAsSpan
   class EndDatePropagator
     attr_reader :object,
                 :errors_cache,
-                :skipped_classes
+                :skipped_classes,
+                :include_errors
 
-    def initialize(object, errors_cache: [], skipped_classes: [])
+    def initialize(object, errors_cache: [], skipped_classes: [], include_errors: true)
       @object = object
       @errors_cache = errors_cache
       @skipped_classes = skipped_classes
+      @include_errors = include_errors
     end
 
     # class-level call: enable the usage of ActsAsSpan::EndDatePropagator.call
@@ -126,7 +128,7 @@ module ActsAsSpan
     # save the child record, add errors.
     def save_with_errors(object, child, propagated_child)
       if object_has_errors?(propagated_child)
-        errors_cache << propagation_error_message(object, child)
+        errors_cache << propagation_error_message(object, child) if include_errors
       end
       child.save
     end

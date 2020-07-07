@@ -3,13 +3,16 @@ require 'spec_helper'
 RSpec.describe ActsAsSpan::EndDatePropagator do
   let(:end_date_propagator) do
     ActsAsSpan::EndDatePropagator.new(
-      base_instance, skipped_classes: skipped_classes
+      base_instance, skipped_classes: skipped_classes,
+      include_errors: include_errors
     )
   end
 
   let(:base_instance) do
     Base.create(end_date: initial_end_date)
   end
+
+  let(:include_errors) { true }
   let(:initial_end_date) { nil }
 
   let(:other_base_instance) do
@@ -102,28 +105,38 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
     end
 
     context 'when multiple child records are not valid' do
-      before do
-        child_instance.date_of_birth = base_instance.span.start_date - 1
-        child_instance.save(validate: false)
-        bird_instance.start_date = child_instance.span.start_date - 1
-        bird_instance.save(validate: false)
+      context 'when include_errors = true (default)' do
+        before do
+          child_instance.date_of_birth = base_instance.span.start_date - 1
+          child_instance.save(validate: false)
+          bird_instance.start_date = child_instance.span.start_date - 1
+          bird_instance.save(validate: false)
+        end
+        it "the parent gains all children's errors" do
+          expect(
+            end_date_propagator.call.errors.values.join
+          ).to include(
+            I18n.t(
+              'not_within_parent_date_span',
+              parent: 'Child',
+              scope: %i[activerecord errors messages]
+            )
+          ).and include(
+            I18n.t(
+              'not_within_parent_date_span',
+              parent: 'Base',
+              scope: %i[activerecord errors messages]
+            )
+          )
+        end
       end
-      it "the parent gains all children's errors" do
-        expect(
-          end_date_propagator.call.errors.values.join
-        ).to include(
-          I18n.t(
-            'not_within_parent_date_span',
-            parent: 'Child',
-            scope: %i[activerecord errors messages]
-          )
-        ).and include(
-          I18n.t(
-            'not_within_parent_date_span',
-            parent: 'Base',
-            scope: %i[activerecord errors messages]
-          )
-        )
+
+      context 'when include_errors = false' do
+        let(:include_errors) { false }
+
+        it 'does not push any child errors' do
+          expect(end_date_propagator.call.errors.values).to be_empty
+        end
       end
     end
   end
