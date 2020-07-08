@@ -47,6 +47,32 @@ Temping.create :one_parent_child do
   validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama]
 end
 
+Temping.create :one_parent_child_custom do
+  with_columns do |t|
+    t.belongs_to :mama
+
+    t.date :start_date
+    t.date :end_date
+
+    # every one-parent child is a favorite! ...by default
+    t.boolean :favorite, default: true
+  end
+
+  acts_as_span
+
+  def favorite?
+    favorite
+  end
+
+  belongs_to :mama
+  has_siblings through: [:mama]
+
+  validates_with ActsAsSpan::NoOverlapValidator,
+    scope: proc { siblings }, instance_scope: proc { favorite? }, message: 'Custom error message'
+  validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama], message: 'Custom error message'
+end
+
+
 Temping.create :two_parent_child do
   with_columns do |t|
     t.belongs_to :mama
@@ -76,6 +102,7 @@ Temping.create :mama do
 
   has_many :one_parent_children
   has_many :two_parent_children
+  has_many :one_parent_child_customs
 end
 
 Temping.create :papa do

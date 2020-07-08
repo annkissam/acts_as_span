@@ -112,4 +112,15 @@ RSpec.describe ActsAsSpan::WithinParentDateSpanValidator do
       end
     end
   end
+
+  describe 'error messages' do
+    let(:child_class) { OneParentChildCustom }
+    let(:new_child_start_date) { mama_start_date - 3.days }
+    let(:new_child_end_date) { mama_end_date + 5.days }
+
+    it 'allows using custom error messages' do
+      expect(new_child).not_to be_valid
+      expect(new_child.errors.messages[:base]).to include('Custom error message')
+    end
+  end
 end

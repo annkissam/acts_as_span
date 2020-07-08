@@ -116,4 +116,14 @@ RSpec.describe ActsAsSpan::NoOverlapValidator do
       end
     end
   end
+
+  describe 'error messages' do
+    let(:child_class) { OneParentChildCustom }
+    let(:new_child_start_date) { sister_start_date }
+    let(:new_child_end_date) { sister_end_date }
+    it 'allows using custom error messages' do
+      expect(new_child).not_to be_valid
+      expect(new_child.errors.messages[:base]).to include('Custom error message')
+    end
+  end
 end
