@@ -8,11 +8,18 @@ module ActsAsSpan
       included do
         def current(query_date = Date.current)
           klass.where(
-            (arel_table[start_field].lteq(query_date).or(arel_table[start_field].eq(nil))).
-            and(
-              arel_table[end_field].eq(nil).or(arel_table[end_field].gteq(query_date))
-            )
+            current_condition(query_date: query_date, table: arel_table)
           )
+        end
+
+        def current_condition(query_date:, table:)
+          start_col = arel_table[start_field]
+          end_col = arel_table[end_field]
+
+          start_condition = start_col.lteq(query_date).or(start_col.eq(nil))
+          end_condition = end_col.eq(nil).or(end_col.gteq(query_date))
+
+          start_condition.and(end_condition)
         end
 
         alias_method :current_on, :current
