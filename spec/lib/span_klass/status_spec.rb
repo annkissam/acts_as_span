@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe ActsAsSpan::SpanKlass::Status do
   let(:span_klass) { ::SpanModel }
 
-  let(:today) { Date.new(2020, 10, 31) }
+  let!(:today) { Date.current }
 
   describe '.current' do
     let!(:record) do
