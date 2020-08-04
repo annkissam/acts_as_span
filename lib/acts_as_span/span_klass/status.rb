@@ -12,16 +12,6 @@ module ActsAsSpan
           )
         end
 
-        def current_condition(query_date:, table:)
-          start_col = arel_table[start_field]
-          end_col = arel_table[end_field]
-
-          start_condition = start_col.lteq(query_date).or(start_col.eq(nil))
-          end_condition = end_col.eq(nil).or(end_col.gteq(query_date))
-
-          start_condition.and(end_condition)
-        end
-
         alias_method :current_on, :current
 
         def future(query_date = Date.current)
@@ -51,6 +41,19 @@ module ActsAsSpan
         end
 
         alias_method :current_or_future, :current_or_future_on
+
+        private
+
+        # returns an Arel node usable within an ActiveRecord `where` clause
+        def current_condition(query_date:, table:)
+          start_col = arel_table[start_field]
+          end_col = arel_table[end_field]
+
+          start_condition = start_col.lteq(query_date).or(start_col.eq(nil))
+          end_condition = end_col.eq(nil).or(end_col.gteq(query_date))
+
+          start_condition.and(end_condition)
+        end
       end
     end
   end

@@ -17,7 +17,7 @@ RSpec.describe ActsAsSpan::SpanKlass::Status do
 
     subject { span_klass.current(query_date) }
 
-    context 'when query_date is the current date' do
+    context "when query_date is within the record's span" do
       let(:query_date) { record.start_date + 3.days }
 
       it { is_expected.not_to be_empty }
