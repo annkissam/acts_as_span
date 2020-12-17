@@ -72,6 +72,25 @@ Temping.create :one_parent_child_custom do
   validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama], message: 'Custom error message'
 end
 
+Temping.create :two_parent_child_partial_span_validation do
+  with_columns do |t|
+    t.belongs_to :mama
+    t.belongs_to :papa
+
+    t.date :start_date
+    t.date :end_date
+
+  end
+
+  acts_as_span
+
+  belongs_to :mama
+  belongs_to :papa
+
+  validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama], skip_start_date_validation: true
+  validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:papa], skip_end_date_validation: true
+end
+
 
 Temping.create :two_parent_child do
   with_columns do |t|

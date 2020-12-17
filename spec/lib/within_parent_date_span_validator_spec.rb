@@ -123,4 +123,26 @@ RSpec.describe ActsAsSpan::WithinParentDateSpanValidator do
       expect(new_child.errors.messages[:base]).to include('Custom error message')
     end
   end
+
+  describe 'partial span validation' do
+    let(:child_class) { TwoParentChildPartialSpanValidation }
+
+    context 'skip_start_date_validation' do
+      let(:new_child_start_date) { mama_start_date - 3.days }
+      let(:new_child_end_date) { mama_end_date }
+
+      it 'allows the start_date to be out of span' do
+        expect(new_child).to be_valid
+      end
+    end
+
+    context 'skip_end_date_validation' do
+      let(:new_child_start_date) { papa_start_date }
+      let(:new_child_end_date) { papa_end_date + 5.days }
+
+      it 'allows the end_date to be out of span' do
+        expect(new_child).to be_valid
+      end
+    end
+  end
 end
