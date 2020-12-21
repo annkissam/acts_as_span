@@ -3,6 +3,6 @@ rvm:
   - 2.4.5
   - 2.5.3
   - 2.6.5
-before_install: gem install bundler
+before_install: gem install bundler:2.1.4
 notifications:
   email: false
