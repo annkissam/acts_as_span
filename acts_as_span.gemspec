@@ -36,6 +36,6 @@ Gem::Specification.new do |s|
 
   # End Date Propagator breaks for Rails 6.1; Release a new minor version
   #   so any apps stuck in Rails 5 can lock more easily.
-  s.add_runtime_dependency('activerecord', '~> 5.2.4.4')
-  s.add_runtime_dependency('activesupport', '~> 5.2.4.4')
+  s.add_runtime_dependency('activerecord', '< 6.0', '>= 4.2.0')
+  s.add_runtime_dependency('activesupport', '<6.0', '>= 4.2.0')
 end
