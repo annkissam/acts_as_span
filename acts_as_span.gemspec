@@ -34,6 +34,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "temping"
   s.add_development_dependency "pry-byebug"
 
-  s.add_runtime_dependency('activerecord', '>= 4.2.0')
-  s.add_runtime_dependency('activesupport', '>= 4.2.0')
+  s.add_runtime_dependency('activerecord', '>= 5.0.0')
+  s.add_runtime_dependency('activesupport', '>= 5.0.0')
 end
