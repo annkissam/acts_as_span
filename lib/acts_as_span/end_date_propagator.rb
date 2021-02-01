@@ -111,8 +111,11 @@ module ActsAsSpan
       end
 
       if errors_cache.present?
-        # add just the strings, prevent ugly nested arrays in the view
-        object.errors.add(:base, message: errors_cache.flatten.join('; '))
+        errors_cache.each do |message|
+          skip if object.errors.added?(:base, message)
+
+          object.errors.add(:base, message: message)
+        end
       end
 
       # return the object, with any newly-added errors
