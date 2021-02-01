@@ -1,6 +1,6 @@
 # frozen_string_Literal: true
 
-$LOAD_PATH.push File.expand_path('../lib', __dir__)
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 require 'acts_as_span/version'
 
 Gem::Specification.new do |s|
