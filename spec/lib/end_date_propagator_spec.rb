@@ -93,7 +93,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
       end
       it "the parent shows that grandchild's errors" do
         expect(
-          end_date_propagator.call.errors.values.join
+          end_date_propagator.call.errors.full_messages.join
         ).to include(
           I18n.t(
             'not_within_parent_date_span',
@@ -114,7 +114,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
         end
         it "the parent gains all children's errors" do
           expect(
-            end_date_propagator.call.errors.values.join
+            end_date_propagator.call.errors.full_messages.join
           ).to include(
             I18n.t(
               'not_within_parent_date_span',
@@ -135,7 +135,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
         let(:include_errors) { false }
 
         it 'does not push any child errors' do
-          expect(end_date_propagator.call.errors.values).to be_empty
+          expect(end_date_propagator.call.errors.full_messages).to be_empty
         end
       end
     end
