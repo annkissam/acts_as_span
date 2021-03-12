@@ -88,8 +88,10 @@ module ActsAsSpan
     def call
       result = propagate
       # only add new errors to the object
-      result.errors.each do |error, message|
-        object.errors.add(error) if object.errors[error].exclude? message
+      result.errors.each do |error|
+        if object.errors[error.attribute].exclude? error.message
+          object.errors.add(error.attribute, error.message)
+        end
       end
       object
     end
@@ -110,7 +112,7 @@ module ActsAsSpan
 
       if errors_cache.present?
         errors_cache.each do |message|
-          skip if object.errors.added?(:base, message)
+          next if object.errors.added?(:base, message)
 
           object.errors.add(:base, message)
         end
