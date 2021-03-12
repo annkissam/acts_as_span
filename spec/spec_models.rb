@@ -170,9 +170,11 @@ Temping.create :child do
   validates_with ActsAsSpan::WithinParentDateSpanValidator,
     parents: [:base]
 
+  validate :not_manually_invalidated
+
   acts_as_span(
     start_field: :date_of_birth,
-    end_field: :emancipation_date
+    end_field: :emancipation_date,
   )
 
   with_columns do |t|
@@ -180,6 +182,12 @@ Temping.create :child do
     t.date :emancipation_date
     t.string :manual_invalidation
     t.belongs_to :base
+  end
+
+  def not_manually_invalidated
+    return if manual_invalidation.blank? || manual_invalidation == false
+
+    errors.add(:base, 'Child is bad')
   end
 end
 
