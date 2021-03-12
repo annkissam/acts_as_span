@@ -88,15 +88,36 @@ module ActsAsSpan
     def call
       result = propagate
       # only add new errors to the object
-      result.errors.each do |error|
-        if object.errors[error.attribute].exclude? error.message
-          object.errors.add(error.attribute, error.message)
-        end
+
+      # NOTE: Rails 5 support
+      if ActiveRecord::VERSION::MAJOR > 5
+        add_errors(result.errors)
+      else
+        add_rails_5_errors(result.errors)
       end
+
       object
     end
 
     private
+
+    def add_errors(errors)
+      errors.each do |error|
+        if object.errors[error.attribute].exclude? error.message
+          object.errors.add(error.attribute, error.message)
+        end
+      end
+    end
+
+    # Treat errors like a Hash
+    # NOTE: Rails 5 support
+    def add_rails_5_errors(errors)
+      errors.each do |attribute, message|
+        if object.errors[attribute].exclude? message
+          object.errors.add(attribute, message)
+        end
+      end
+    end
 
     def propagate
       # return if there is nothing to propagate
