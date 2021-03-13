@@ -17,6 +17,6 @@ Please include the Github issue or pull request number when applicable
 
 ## [Unreleased]
 ### Added
-- A change log
+- A change log #31
 ### Fixed
 - Syntax error in EndDatePropagator#propagate #30
