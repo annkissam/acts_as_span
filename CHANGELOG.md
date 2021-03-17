@@ -16,6 +16,14 @@ Types of changes:
 Please include the Github issue or pull request number when applicable
 
 ## [Unreleased]
+## Added
+- Methods to get Arel nodes instead of ActiveRecord relations for the span class
+  scopes:
+  * `current` -> `current_condition`
+  * `expired` (aka `past`) -> `expired_condition`
+  * `future` -> `future_condition`
+
+## 1.2.2
 ### Added
 - A change log #31
 ### Fixed
