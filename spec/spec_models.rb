@@ -230,5 +230,3 @@ Temping.create :tale do
     t.belongs_to :base
   end
 end
-
-

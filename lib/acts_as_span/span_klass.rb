@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'acts_as_span/span_klass/status'
 
 require 'active_support/core_ext/module/delegation'
