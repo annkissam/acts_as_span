@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ostruct'
 require 'acts_as_span/version'
 require 'acts_as_span/span_klass'
@@ -21,9 +23,9 @@ module ActsAsSpan
   class << self
     def options
       @options ||= {
-        :start_field => :start_date,
-        :end_field => :end_date,
-        :name => :default
+        start_field: :start_date,
+        end_field: :end_date,
+        name: :default,
       }
     end
 
@@ -34,8 +36,8 @@ module ActsAsSpan
 
   module ClassMethods
     def acts_as_span(*args)
-      self.send(:extend, ActsAsSpan::ExtendedClassMethods)
-      self.send(:include, ActsAsSpan::IncludedInstanceMethods)
+      send(:extend, ActsAsSpan::ExtendedClassMethods)
+      send(:include, ActsAsSpan::IncludedInstanceMethods)
 
       # TODO: There's some refactoring that could be done here using keyword args (or the more standard old hash arg pattern)
       options = OpenStruct.new(args.last.is_a?(Hash) ? ActsAsSpan.options.merge(args.pop) : ActsAsSpan.options)
@@ -44,38 +46,22 @@ module ActsAsSpan
         options.to_h.keys.reject { |opt| OPTIONS.include? opt }
       unless unsupported_options.empty?
         raise ArgumentError,
-          'Unsupported option(s): ' <<
-          unsupported_options.map { |o| "'#{o}'" }.join(', ')
+              "Unsupported option(s): #{unsupported_options.map { |o| "'#{o}'" }.join(', ')}"
       end
 
       acts_as_span_definitions[options.name] = options
 
-      # TODO add tests that check delegation of all methos in span
-      delegate :span_status,
-               :span_status_on,
-               :current?,
-               :current_on?,
-               :future?,
-               :future_on?,
-               :expired?,
-               :expired_on?,
-               :past?,
-               :past_on?, to: :span
+      # add methods like `current_on?` to an instance
+      delegate(*ActsAsSpan::SpanInstance::Status::QUERIES, to: :span)
 
       delegate :acts_as_span_definitions, to: :class
 
-      # TODO idem above
       class << self
-        delegate :current,
-                 :current_on,
-                 :future,
-                 :future_on,
-                 :expired,
-                 :expired_on,
-                 :past_on,
-                 :past,
-                 :current_or_future_on,
-                 :current_or_future, to: :span
+        # add methods like `current` to a class
+        delegate(*ActsAsSpan::SpanKlass::Status::SCOPES, to: :span)
+        # expose all scope method names to the application for use in, for
+        #   example, Ransack
+        delegate(:scopes, to: :span)
       end
 
       validate :validate_spans
@@ -88,7 +74,9 @@ module ActsAsSpan
 
   module ExtendedClassMethods
     def spans
-      acts_as_span_definitions.keys.map { |acts_as_span_definition_name| span_for(acts_as_span_definition_name) }
+      acts_as_span_definitions.keys.map do |acts_as_span_definition_name|
+        span_for(acts_as_span_definition_name)
+      end
     end
 
     def span
@@ -106,7 +94,9 @@ module ActsAsSpan
 
   module IncludedInstanceMethods
     def spans
-      acts_as_span_definitions.keys.map { |acts_as_span_definition_name| span_for(acts_as_span_definition_name) }
+      acts_as_span_definitions.keys.map do |acts_as_span_definition_name|
+        span_for(acts_as_span_definition_name)
+      end
     end
 
     def span
@@ -127,6 +117,4 @@ module ActsAsSpan
   end
 end
 
-if Object.const_defined?("ActiveRecord")
-  ActiveRecord::Base.send(:include, ActsAsSpan)
-end
+ActiveRecord::Base.include ActsAsSpan if Object.const_defined?('ActiveRecord')
