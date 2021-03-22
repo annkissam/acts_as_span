@@ -40,18 +40,6 @@ To use these alongside ransack, add them to your `ransackable_scopes` as needed:
     end
 ```
 
-(using Rails) Or include them by default in your `ApplicationRecord`:
-
-```ruby
-    class ApplicationRecord
-    # ...
-
-      def self.ransackable_scopes
-        respond_to?(:span) ? span_scopes : []
-      end
-    end
-```
-
 ## Copyright
 
 Copyright (c) 2011-2021 Annkissam. See LICENSE for details.
