@@ -61,7 +61,7 @@ module ActsAsSpan
         delegate(*ActsAsSpan::SpanKlass::Status::SCOPES, to: :span)
         # expose all scope method names to the application for use in, for
         #   example, Ransack
-        delegate(:scopes, to: :span)
+        delegate(:span_scopes, to: :span)
       end
 
       validate :validate_spans
