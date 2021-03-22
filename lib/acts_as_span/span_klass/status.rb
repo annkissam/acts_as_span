@@ -102,8 +102,6 @@ module ActsAsSpan
         past
         past_on
       ].freeze
-
-      SCOPE_BOOLEANS = SCOPES.map { |s| "#{s}?" }.freeze
     end
   end
 end
