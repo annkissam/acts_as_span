@@ -38,6 +38,19 @@ module ActsAsSpan
         alias_method :past_on?, :expired?
         alias_method :past?, :expired?
       end
+
+      QUERIES = %i[
+        future?
+        future_on?
+        current?
+        current_on?
+        expired?
+        expired_on?
+        past?
+        past_on?
+        span_status
+        span_status_on
+      ].freeze
     end
   end
 end

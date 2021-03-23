@@ -1,4 +1,4 @@
-# frozen_string_Literal: true
+# frozen_string_literal: true
 
 module ActsAsSpan
   # # End Date Propagator

@@ -1,4 +1,4 @@
-# frozen_string_Literal: true
+# frozen_string_literal: true
 
 require 'active_support'
 
@@ -18,6 +18,10 @@ module ActsAsSpan
       extend ActiveSupport::Concern
 
       included do
+        def span_scopes
+          SCOPES
+        end
+
         # Records whose spans include the query date.
         # If no query date is given, the current date is the query date.
         # Date span is _inclusive_: if the query date is equal to the
@@ -85,6 +89,19 @@ module ActsAsSpan
           table[start_field].gt(query_date)
         end
       end
+
+      SCOPES = %i[
+        current
+        current_on
+        current_or_future
+        current_or_future_on
+        expired
+        expired_on
+        future
+        future_on
+        past
+        past_on
+      ].freeze
     end
   end
 end
