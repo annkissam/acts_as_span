@@ -92,7 +92,7 @@ module ActsAsSpan
       # NOTE: Rails < 6.1 support
       # Errors are an array of Error objects in Rails 6.1 +
       if ActiveRecord::VERSION::MAJOR > 5 ||
-         (ActiveRecord::Version::MAJOR == 6 && ActiveRecord::VERSION::MINOR > 1)
+         (ActiveRecord::VERSION::MAJOR == 6 && ActiveRecord::VERSION::MINOR > 1)
         add_errors(result.errors)
       else
         add_rails_5_errors(result.errors)
