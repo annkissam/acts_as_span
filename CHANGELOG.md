@@ -23,6 +23,9 @@ Please include the Github issue or pull request number when applicable
   * `current` -> `current_condition`
   * `expired` (aka `past`) -> `expired_condition`
   * `future` -> `future_condition`
+## Fixed
+- Rails 5 support for the EndDatePropagator needed to be extended into Rails 6.0
+  #34
 
 ## 1.2.2
 ### Added
