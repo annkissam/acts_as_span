@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'acts_as_span/span_klass/status'
+require 'acts_as_span/span_klass/superlatives'
 
 require 'active_support/core_ext/module/delegation'
 
 module ActsAsSpan
   class SpanKlass
     include ActsAsSpan::SpanKlass::Status
+    include ActsAsSpan::SpanKlass::Superlatives
 
     delegate :start_field,
              :end_field,

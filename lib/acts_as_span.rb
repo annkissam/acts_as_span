@@ -62,6 +62,12 @@ module ActsAsSpan
         # expose all scope method names to the application for use in, for
         #   example, Ransack
         delegate(:span_scopes, to: :span)
+
+        # add methods like 'latest' to a class
+        delegate(
+          *ActsAsSpan::SpanKlass::Superlatives::METHOD_SYMBOLS,
+          to: :span,
+        )
       end
 
       validate :validate_spans

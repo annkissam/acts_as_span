@@ -23,6 +23,8 @@ Please include the Github issue or pull request number when applicable
   * `current` -> `current_condition`
   * `expired` (aka `past`) -> `expired_condition`
   * `future` -> `future_condition`
+- `earliest` and `latest` methods, which return the earliest or latest record
+  in a collection of spanned records #36
 ## Fixed
 - Rails 5 support for the EndDatePropagator needed to be extended into Rails 6.0
   #34
