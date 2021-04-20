@@ -173,6 +173,7 @@ module ActsAsSpan
         parent: object.model_name.human,
         child: child.model_name.human,
         reason: child.errors.full_messages.join('; '),
+        child_id: child.id
       )
     end
 

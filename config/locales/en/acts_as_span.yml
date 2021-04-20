@@ -4,7 +4,7 @@ en:
       messages:
         end_date_propagator:
           propagation_failure: "%{parent} could not propagate
-           %{end_date_field_name} to %{child}:\n%{reason}"
+           %{end_date_field_name} to %{child}:\n%{reason}. Child ID: %{child_id} "
         # TODO: let pluralize handle pluralization
         no_overlap:
           one: "A %{model_name} already exists between
