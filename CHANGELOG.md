@@ -17,6 +17,7 @@ Please include the Github issue or pull request number when applicable
 
 ## [Unreleased]
 ## Added
+- Added child ID to the End Date Propagator message for easier debugging
 - A way to get the scopes that Acts As Span defines on a class: `.span_scopes`
 - Methods to get Arel nodes instead of ActiveRecord relations for the span class
   scopes:
