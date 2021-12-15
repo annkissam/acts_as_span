@@ -183,11 +183,13 @@ module ActsAsSpan
     end
 
     # check if the end_date analog is dirtied
+    # README METHOD! Update README.md if this method is changed
     def end_date_changed?(object)
       end_date_field = object.span.end_field.to_s
       object.changed.include? end_date_field
     end
 
+    # README METHOD! Update README.md if this method is changed
     def should_propagate_from?(object)
       object.respond_to?(:span) &&
         end_date_changed?(object) &&
@@ -195,10 +197,12 @@ module ActsAsSpan
     end
 
     # Use acts_as_span to determine whether a record has an end date
+    # README METHOD! Update README.md if this method is changed
     def should_propagate_to?(klass)
       klass.respond_to?(:span) && @skipped_classes.exclude?(klass)
     end
 
+    # README METHOD! Update README.md if this method is changed
     def child_associations(object)
       object.class.reflect_on_all_associations(:has_many).select do |reflection|
         %i[delete destroy].include?(reflection.options[:dependent]) &&
@@ -206,6 +210,7 @@ module ActsAsSpan
       end
     end
 
+    # README METHOD! Update README.md if this method is changed
     def children(object)
       child_objects = child_associations(object).flat_map do |reflection|
         object.send(reflection.name)
