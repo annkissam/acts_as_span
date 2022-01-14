@@ -62,7 +62,7 @@ module ActsAsSpan
         def latest(by: :start)
           field = field_from_option(by)
 
-          klass.order(field => :desc).first
+          klass.reorder(field => :desc).first
         end
 
         private
