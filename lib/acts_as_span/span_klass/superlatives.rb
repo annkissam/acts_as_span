@@ -25,14 +25,8 @@ module ActsAsSpan
         #     finds the record with the earliest value in the start date.
         #     If set to `:end` or `:end_date`, finds the record with the
         #     earliest end date.
-        # * :additional_order (default: {})
-        #   A Hash that provides additional sorting. If one of the span fields
-        #     are included in this argument, this method will _not_ overwrite
-        #     the original order for that field.
-        #   The Hash is of the form { field_name: :asc, field_name_2: :desc }
-        #
         # Example:
-        #   collection.latest(by: :end, order: { id: :desc, name: :asc })
+        #   collection.latest(by: :end)
         def earliest(by: :start)
           field = field_from_option(by)
 
@@ -49,14 +43,8 @@ module ActsAsSpan
         #     finds the record with the earliest value in the start date.
         #     If set to `:end` or `:end_date`, finds the record with the
         #     earliest end date.
-        # * :additional_order (default: {})
-        #   A Hash that provides additional sorting. If one of the span fields
-        #     are included in this argument, this method will _not_ overwrite
-        #     the original order for that field.
-        #   The Hash is of the form { field_name: :asc, field_name_2: :desc }
-        #
         # Example:
-        #   collection.latest(by: :end, order: { id: :desc, name: :asc })
+        #   collection.latest(by: :end)
         def earliest!(by: :start)
           field = field_from_option(by)
 
@@ -74,14 +62,9 @@ module ActsAsSpan
         #     finds the record with the latest value in the start date.
         #     If set to `:end` or `:end_date`, finds the record with the
         #     latest end date.
-        # * :additional_order (default: {})
-        #   A Hash that provides additional sorting. If one of the span fields
-        #     are included in this argument, this method will _not_ overwrite
-        #     the original order for that field.
-        #   The Hash is of the form { field_name: :asc, field_name_2: :desc }
         #
         # Example:
-        #   collection.latest(by: :end, order: { created_at: :asc })
+        #   collection.latest(by: :end)
         def latest(by: :start)
           field = field_from_option(by)
 
@@ -99,14 +82,9 @@ module ActsAsSpan
         #     finds the record with the latest value in the start date.
         #     If set to `:end` or `:end_date`, finds the record with the
         #     latest end date.
-        # * :additional_order (default: {})
-        #   A Hash that provides additional sorting. If one of the span fields
-        #     are included in this argument, this method will _not_ overwrite
-        #     the original order for that field.
-        #   The Hash is of the form { field_name: :asc, field_name_2: :desc }
         #
         # Example:
-        #   collection.latest(by: :end, order: { created_at: :asc })
+        #   collection.latest(by: :end)
         def latest!(by: :start)
           field = field_from_option(by)
 
