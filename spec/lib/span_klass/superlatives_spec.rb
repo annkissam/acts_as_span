@@ -32,34 +32,36 @@ RSpec.describe ActsAsSpan::SpanKlass::Superlatives do
     end
   end
 
-  describe '.latest' do
-    subject(:result) { span_klass.latest(**options) }
+  [:latest, :latest!].each do |latest|
+    describe "#{latest}" do
+      subject(:result) { span_klass.send(latest, **options) }
 
-    context 'with no options' do
-      let(:options) { {} }
-
-      it_behaves_like 'return later_record'
-    end
-
-    context 'when called on a relation' do
-      subject(:result) { span_klass.where.not(start_date: nil).latest }
-
-      it_behaves_like 'return later_record'
-    end
-
-    describe ':by' do
-      let(:options) { { by: by } }
-
-      context 'when :start' do
-        let(:by) { :start }
+      context 'with no options' do
+        let(:options) { {} }
 
         it_behaves_like 'return later_record'
       end
 
-      context 'when :end' do
-        let(:by) { 'end_date' }
+      context 'when called on a relation' do
+        subject(:result) { span_klass.where.not(start_date: nil).send(latest) }
 
         it_behaves_like 'return later_record'
+      end
+
+      describe ':by' do
+        let(:options) { { by: by } }
+
+        context 'when :start' do
+          let(:by) { :start }
+
+          it_behaves_like 'return later_record'
+        end
+
+        context 'when :end' do
+          let(:by) { 'end_date' }
+
+          it_behaves_like 'return later_record'
+        end
       end
     end
   end
@@ -70,34 +72,36 @@ RSpec.describe ActsAsSpan::SpanKlass::Superlatives do
     end
   end
 
-  describe '.earliest' do
-    subject(:result) { span_klass.earliest(**options) }
+  [:earliest, :earliest!].each do |earliest|
+    describe '.earliest' do
+      subject(:result) { span_klass.send(earliest, **options) }
 
-    context 'with no options' do
-      let(:options) { {} }
-
-      it_behaves_like 'return earlier_record'
-    end
-
-    context 'when called on a relation' do
-      subject(:result) { span_klass.where.not(start_date: nil).earliest }
-
-      it_behaves_like 'return earlier_record'
-    end
-
-    describe ':by' do
-      let(:options) { { by: by } }
-
-      context 'when :start' do
-        let(:by) { :start_date }
+      context 'with no options' do
+        let(:options) { {} }
 
         it_behaves_like 'return earlier_record'
       end
 
-      context 'when :end' do
-        let(:by) { :end }
+      context 'when called on a relation' do
+        subject(:result) { span_klass.where.not(start_date: nil).send(earliest) }
 
         it_behaves_like 'return earlier_record'
+      end
+
+      describe ':by' do
+        let(:options) { { by: by } }
+
+        context 'when :start' do
+          let(:by) { :start_date }
+
+          it_behaves_like 'return earlier_record'
+        end
+
+        context 'when :end' do
+          let(:by) { :end }
+
+          it_behaves_like 'return earlier_record'
+        end
       end
     end
   end

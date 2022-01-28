@@ -113,7 +113,7 @@ module ActsAsSpan
         end
       end
 
-      METHOD_SYMBOLS = %i[earliest latest].freeze
+      METHOD_SYMBOLS = %i[earliest latest earliest! latest!].freeze
     end
   end
 end
