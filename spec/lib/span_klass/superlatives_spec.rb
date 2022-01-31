@@ -26,81 +26,81 @@ RSpec.describe ActsAsSpan::SpanKlass::Superlatives do
   let(:later_start_date) { today - 1.week }
   let(:later_end_date) { today + 2.weeks }
 
-  describe '.latest' do
-    subject(:result) { span_klass.latest(**options) }
-
-    context 'with no options' do
-      let(:options) { {} }
-
-      it 'returns the record with the latest start field' do
-        expect(result).to eq(later_record)
-      end
+  shared_examples 'return later_record' do
+    it 'returns the record with the latest start field' do
+      expect(result).to eq(later_record)
     end
+  end
 
-    context 'when called on a relation' do
-      subject(:result) { span_klass.where.not(start_date: nil).latest }
+  [:latest, :latest!].each do |latest|
+    describe "#{latest}" do
+      subject(:result) { span_klass.send(latest, **options) }
 
-      it 'returns the record with the latest start field' do
-        expect(result).to eq(later_record)
+      context 'with no options' do
+        let(:options) { {} }
+
+        it_behaves_like 'return later_record'
       end
-    end
 
-    describe ':by' do
-      let(:options) { { by: by } }
+      context 'when called on a relation' do
+        subject(:result) { span_klass.where.not(start_date: nil).send(latest) }
 
-      context 'when :start' do
-        let(:by) { :start }
+        it_behaves_like 'return later_record'
+      end
 
-        it 'returns the record with the latest start field' do
-          expect(result).to eq(later_record)
+      describe ':by' do
+        let(:options) { { by: by } }
+
+        context 'when :start' do
+          let(:by) { :start }
+
+          it_behaves_like 'return later_record'
         end
-      end
 
-      context 'when :end' do
-        let(:by) { 'end_date' }
+        context 'when :end' do
+          let(:by) { 'end_date' }
 
-        it 'returns the record with the latest end field' do
-          expect(result).to eq(later_record)
+          it_behaves_like 'return later_record'
         end
       end
     end
   end
 
-  describe '.earliest' do
-    subject(:result) { span_klass.earliest(**options) }
-
-    context 'with no options' do
-      let(:options) { {} }
-
-      it 'returns the record with the earliest start field' do
-        expect(result).to eq(earlier_record)
-      end
+  shared_examples 'return earlier_record' do
+    it 'returns the record with the earliest start field' do
+      expect(result).to eq(earlier_record)
     end
+  end
 
-    context 'when called on a relation' do
-      subject(:result) { span_klass.where.not(start_date: nil).earliest }
+  [:earliest, :earliest!].each do |earliest|
+    describe '.earliest' do
+      subject(:result) { span_klass.send(earliest, **options) }
 
-      it 'returns the record with the earliest start field' do
-        expect(result).to eq(earlier_record)
+      context 'with no options' do
+        let(:options) { {} }
+
+        it_behaves_like 'return earlier_record'
       end
-    end
 
-    describe ':by' do
-      let(:options) { { by: by } }
+      context 'when called on a relation' do
+        subject(:result) { span_klass.where.not(start_date: nil).send(earliest) }
 
-      context 'when :start' do
-        let(:by) { :start_date }
+        it_behaves_like 'return earlier_record'
+      end
 
-        it 'returns the record with the earliest start field' do
-          expect(result).to eq(earlier_record)
+      describe ':by' do
+        let(:options) { { by: by } }
+
+        context 'when :start' do
+          let(:by) { :start_date }
+
+          it_behaves_like 'return earlier_record'
         end
-      end
 
-      context 'when :end' do
-        let(:by) { :end }
+        context 'when :end' do
+          let(:by) { :end }
 
-        it 'returns the record with the earliest end field' do
-          expect(result).to eq(earlier_record)
+          it_behaves_like 'return earlier_record'
         end
       end
     end

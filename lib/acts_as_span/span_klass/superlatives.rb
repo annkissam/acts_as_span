@@ -16,8 +16,7 @@ module ActsAsSpan
         end
 
         # Retrieves the earliest record in a collection of spanned records.
-        # Note: Calls '.reorder' on the class, removing existing orders in the
-        #   collection.
+        # Note: Calls '.order' on the class
         #
         # Options:
         # * :by (default: :start)
@@ -26,18 +25,30 @@ module ActsAsSpan
         #     finds the record with the earliest value in the start date.
         #     If set to `:end` or `:end_date`, finds the record with the
         #     earliest end date.
-        # * :additional_order (default: {})
-        #   A Hash that provides additional sorting. If one of the span fields
-        #     are included in this argument, this method will _not_ overwrite
-        #     the original order for that field.
-        #   The Hash is of the form { field_name: :asc, field_name_2: :desc }
-        #
         # Example:
-        #   collection.latest(by: :end, order: { id: :desc, name: :asc })
+        #   collection.latest(by: :end)
         def earliest(by: :start)
           field = field_from_option(by)
 
           klass.order(field => :asc).first
+        end
+
+        # Retrieves the earliest record in a collection of spanned records.
+        # Note: Calls '.reorder' on the class
+        #
+        # Options:
+        # * :by (default: :start)
+        #   A symbol from [:start, :start_date, :end, :end_date]
+        #   The end of the span to sort by. If set to `:start` or `:start_date`,
+        #     finds the record with the earliest value in the start date.
+        #     If set to `:end` or `:end_date`, finds the record with the
+        #     earliest end date.
+        # Example:
+        #   collection.latest(by: :end)
+        def earliest!(by: :start)
+          field = field_from_option(by)
+
+          klass.reorder(field => :asc).first
         end
 
         # Retrieves the latest record in a collection of spanned records.
@@ -51,18 +62,33 @@ module ActsAsSpan
         #     finds the record with the latest value in the start date.
         #     If set to `:end` or `:end_date`, finds the record with the
         #     latest end date.
-        # * :additional_order (default: {})
-        #   A Hash that provides additional sorting. If one of the span fields
-        #     are included in this argument, this method will _not_ overwrite
-        #     the original order for that field.
-        #   The Hash is of the form { field_name: :asc, field_name_2: :desc }
         #
         # Example:
-        #   collection.latest(by: :end, order: { created_at: :asc })
+        #   collection.latest(by: :end)
         def latest(by: :start)
           field = field_from_option(by)
 
           klass.order(field => :desc).first
+        end
+
+        # Retrieves the latest record in a collection of spanned records.
+        # Note: Calls '.reorder' on the class, removing existing orders in the
+        #   collection.
+        #
+        # Options:
+        # * :by (default: :start)
+        #   A symbol from [:start, :start_date, :end, :end_date]
+        #   The end of the span to sort by. If set to `:start` or `:start_date`,
+        #     finds the record with the latest value in the start date.
+        #     If set to `:end` or `:end_date`, finds the record with the
+        #     latest end date.
+        #
+        # Example:
+        #   collection.latest(by: :end)
+        def latest!(by: :start)
+          field = field_from_option(by)
+
+          klass.reorder(field => :desc).first
         end
 
         private
@@ -87,7 +113,7 @@ module ActsAsSpan
         end
       end
 
-      METHOD_SYMBOLS = %i[earliest latest].freeze
+      METHOD_SYMBOLS = %i[earliest latest earliest! latest!].freeze
     end
   end
 end
