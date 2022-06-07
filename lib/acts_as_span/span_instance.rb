@@ -1,5 +1,6 @@
 require 'acts_as_span/span_instance/validations'
 require 'acts_as_span/span_instance/status'
+require 'acts_as_span/span_instance/date_range'
 
 require 'active_support/core_ext/module/delegation'
 
@@ -40,6 +41,18 @@ module ActsAsSpan
 
     def end_date_changed?
       span_model.will_save_change_to_attribute?(end_field)
+    end
+
+    # @param other [ActsAsSpan::SpanInstance]
+    # @return [Boolean]
+    def overlap?(other)
+      date_range.overlap?(other.date_range)
+    end
+
+    protected
+
+    def date_range
+      DateRange.new(start_date: start_date, end_date: end_date)
     end
   end
 end

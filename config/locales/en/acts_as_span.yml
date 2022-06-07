@@ -11,5 +11,6 @@ en:
            %{start_date} - %{end_date}: %{overlapping_records_s}"
           other: "%{count} %{model_name_plural} already exist between
            %{start_date} - %{end_date}: %{overlapping_records_s}"
+        no_children_overlap: "%{count} of %{child_model_name_plural} overlap for %{model_name}"
         not_within_parent_date_span: Must exist within the %{parent} date span
         start_date_after_end_date: Must be on or after %{start_field}

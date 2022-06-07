@@ -199,6 +199,7 @@ Temping.create :dog do
   with_columns do |t|
     t.date :start_date
     t.date :end_date
+    t.integer :age
     t.belongs_to :base
   end
 end
