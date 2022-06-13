@@ -6,10 +6,10 @@ module ActsAsSpan
   # Validator that checks whether a record is overlapping with others
   #
   # Takes options `:instance_scope` (optional) and `:scope` (required):
-  # * `instance_scope` is a proc which, when evaluated by the record, returns
+  # * `instance_scope` is a proc or method name which, when evaluated by the record, returns
   #   a boolean value. When false, the validatior will not check for overlap.
   #   When true, the validator checks normally.
-  # * `scope` is also a proc. This is must return an ActiveRecord Relation that
+  # * `scope` is also a proc or method name. This must return a collection that
   #   determines which records' spans to compare.
   #
   # Usage:
@@ -33,14 +33,11 @@ module ActsAsSpan
   #
   class NoOverlapValidator < ActiveModel::Validator
     def validate(record)
-      overlapping_records = temporally_overlapping_for(record)
-      instance_scope = if options[:instance_scope].is_a? Proc
-                         record.instance_eval(&options[:instance_scope])
-                       else
-                         true
-                       end
+      return unless record.instance_eval(&instance_scope_lambda)
 
-      return unless overlapping_records.any? && instance_scope
+      overlapping_records = temporally_overlapping_for(record)
+
+      return unless overlapping_records.any?
 
       error_message = options[:message] || :no_overlap
       record.errors.add(
@@ -58,29 +55,35 @@ module ActsAsSpan
     # TODO: add back condition for start_date nil
     # TODO: add support for multiple spans (currently only checks :default)
     def temporally_overlapping_for(record)
-      scope = record.instance_eval(&options[:scope])
+      scope = record.instance_eval(&scope_lambda).to_a
 
-      start_date = record.span.start_date || Date.current
+      scope.filter { |other| record.span.overlap?(other.span) }
+    end
 
-      end_date = record.span.end_date
-      end_field = record.span.end_field
+    def scope_lambda
+      @scope_lambda ||=
+        case options[:scope]
+        when Proc
+          options[:scope]
+        when String, Symbol
+          method_name = options[:scope]
+          proc { public_send(method_name) }
+        else
+          fail ArgumentError, 'Improper scope'
+        end
+    end
 
-      arel_table = record.class.arel_table
-
-      if end_date
-        scope.where(
-          arel_table[record.span.start_field].lteq(end_date)
-          .and(
-            arel_table[end_field].gteq(start_date)
-          .or(arel_table[end_field].eq(nil))
-          )
-        )
-      else
-        scope.where(
-          arel_table[end_field].gteq(start_date)
-          .or(arel_table[end_field].eq(nil))
-        )
-      end
+    def instance_scope_lambda
+      @instance_scope_lambda ||=
+        case options[:instance_scope]
+        when String, Symbol
+          method_name = options[:instance_scope]
+          proc { public_send(method_name) }
+        when Proc
+          options[:instance_scope]
+        else
+          proc { true }
+        end
     end
   end
 end

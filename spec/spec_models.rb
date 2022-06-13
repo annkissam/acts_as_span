@@ -68,7 +68,7 @@ Temping.create :one_parent_child_custom do
   has_siblings through: [:mama]
 
   validates_with ActsAsSpan::NoOverlapValidator,
-    scope: proc { siblings }, instance_scope: proc { favorite? }, message: 'Custom error message'
+    scope: :siblings, instance_scope: :favorite?, message: 'Custom error message'
   validates_with ActsAsSpan::WithinParentDateSpanValidator, parents: [:mama], message: 'Custom error message'
 end
 
@@ -199,7 +199,6 @@ Temping.create :dog do
   with_columns do |t|
     t.date :start_date
     t.date :end_date
-    t.integer :age
     t.belongs_to :base
   end
 end

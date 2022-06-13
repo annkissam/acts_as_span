@@ -6,7 +6,6 @@ require 'acts_as_span/span_klass'
 require 'acts_as_span/span_instance'
 
 require 'acts_as_span/no_overlap_validator'
-require 'acts_as_span/children_overlap_validator'
 require 'acts_as_span/within_parent_date_span_validator'
 
 require 'acts_as_span/end_date_propagator'
