@@ -41,5 +41,21 @@ module ActsAsSpan
     def end_date_changed?
       span_model.will_save_change_to_attribute?(end_field)
     end
+
+    # @param other [ActsAsSpan::SpanInstance]
+    # @return [Boolean]
+    def overlap?(other)
+      other.actual_start_date <= actual_end_date && actual_start_date <= other.actual_end_date
+    end
+
+    protected
+
+    def actual_end_date
+      end_date || Date::Infinity.new
+    end
+
+    def actual_start_date
+      start_date || Date.current
+    end
   end
 end
