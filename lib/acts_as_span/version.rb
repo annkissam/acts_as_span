@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module ActsAsSpan
   module VERSION
     MAJOR = 1
-    MINOR = 1
+    MINOR = 2
     TINY  = 2
     PRE   = nil
 

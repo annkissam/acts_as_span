@@ -3,8 +3,9 @@ require 'spec_helper'
 RSpec.describe ActsAsSpan::EndDatePropagator do
   let(:end_date_propagator) do
     ActsAsSpan::EndDatePropagator.new(
-      base_instance, skipped_classes: skipped_classes,
-      include_errors: include_errors
+      base_instance,
+      skipped_classes: skipped_classes,
+      include_errors: include_errors,
     )
   end
 
@@ -93,7 +94,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
       end
       it "the parent shows that grandchild's errors" do
         expect(
-          end_date_propagator.call.errors.values.join
+          end_date_propagator.call.errors.full_messages.join
         ).to include(
           I18n.t(
             'not_within_parent_date_span',
@@ -114,7 +115,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
         end
         it "the parent gains all children's errors" do
           expect(
-            end_date_propagator.call.errors.values.join
+            end_date_propagator.call.errors.full_messages.join
           ).to include(
             I18n.t(
               'not_within_parent_date_span',
@@ -135,7 +136,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
         let(:include_errors) { false }
 
         it 'does not push any child errors' do
-          expect(end_date_propagator.call.errors.values).to be_empty
+          expect(end_date_propagator.call.errors.full_messages).to be_empty
         end
       end
     end
@@ -297,6 +298,30 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
       it 'does not throw an error' do
         expect(cat_instance).not_to respond_to(:end_date)
         expect{ end_date_propagator.call }.not_to raise_error
+      end
+    end
+
+    context 'when the record already has a validation that would be added' do
+      let(:end_date) { Date.current }
+
+      before do
+        base_instance.save!
+        base_instance.end_date = end_date
+        base_instance.errors.add(:base, 'Child is bad')
+
+        child_instance.manual_invalidation = true
+        child_instance.save(validate: false)
+
+        # add the error that would be added by the child's propagation
+        base_instance.errors.add(
+          :base,
+          "Base could not propagate Emancipation date to Child:\nChild is bad",
+        )
+      end
+
+      it 'does not add the duplicate error' do
+        expect { end_date_propagator.call }
+          .not_to(change(base_instance, :errors))
       end
     end
 

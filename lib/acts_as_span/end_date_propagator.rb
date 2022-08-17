@@ -1,4 +1,4 @@
-# frozen_string_Literal: true
+# frozen_string_literal: true
 
 module ActsAsSpan
   # # End Date Propagator
@@ -88,15 +88,38 @@ module ActsAsSpan
     def call
       result = propagate
       # only add new errors to the object
-      result.errors.each do |error, message|
-        unless object.errors[error].include? message
-          object.errors[error] << message
-        end
+
+      # NOTE: Rails < 6.1 support
+      # Errors are an array of Error objects in Rails 6.1 +
+      if ActiveRecord::VERSION::MAJOR <= 5 ||
+          (ActiveRecord::VERSION::MAJOR == 6 && ActiveRecord::VERSION::MINOR < 1)
+        add_rails_5_errors(result.errors)
+      else
+        add_errors(result.errors)
       end
+
       object
     end
 
     private
+
+    def add_errors(errors)
+      errors.each do |error|
+        if object.errors[error.attribute].exclude? error.message
+          object.errors.add(error.attribute, error.message)
+        end
+      end
+    end
+
+    # Treat errors like a Hash
+    # NOTE: Rails 5 support
+    def add_rails_5_errors(errors)
+      errors.each do |attribute, message|
+        if object.errors[attribute].exclude? message
+          object.errors.add(attribute, message)
+        end
+      end
+    end
 
     def propagate
       # return if there is nothing to propagate
@@ -110,8 +133,13 @@ module ActsAsSpan
         save_with_errors(object, child, propagated_child)
       end
 
-      # add just the strings, prevent ugly nested arrays in the view
-      object.errors[:base].push(*errors_cache.flatten)
+      if errors_cache.present?
+        errors_cache.each do |message|
+          next if object.errors.added?(:base, message)
+
+          object.errors.add(:base, message)
+        end
+      end
 
       # return the object, with any newly-added errors
       object
@@ -121,14 +149,16 @@ module ActsAsSpan
     def assign_end_date(child, new_end_date)
       child.assign_attributes({ child.span.end_field => new_end_date })
       ActsAsSpan::EndDatePropagator.call(
-        child, errors_cache: errors_cache, skipped_classes: skipped_classes
+        child,
+        errors_cache: errors_cache,
+        skipped_classes: skipped_classes,
       )
     end
 
     # save the child record, add errors.
     def save_with_errors(object, child, propagated_child)
-      if object_has_errors?(propagated_child)
-        errors_cache << propagation_error_message(object, child) if include_errors
+      if object_has_errors?(propagated_child) && include_errors
+        errors_cache << propagation_error_message(object, child)
       end
       child.save
     end
@@ -138,11 +168,11 @@ module ActsAsSpan
         'propagation_failure',
         scope: %i[activerecord errors messages end_date_propagator],
         end_date_field_name: child.class.human_attribute_name(
-          child.span.end_field
+          child.span.end_field,
         ),
         parent: object.model_name.human,
         child: child.model_name.human,
-        reason: child.errors.full_messages.join('; ')
+        reason: child.errors.full_messages.join('; '),
       )
     end
 
@@ -165,8 +195,7 @@ module ActsAsSpan
 
     # Use acts_as_span to determine whether a record has an end date
     def should_propagate_to?(klass)
-      klass.respond_to?(:span) &&
-        @skipped_classes.exclude?(klass)
+      klass.respond_to?(:span) && @skipped_classes.exclude?(klass)
     end
 
     def child_associations(object)

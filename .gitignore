@@ -9,3 +9,5 @@ pkg/*
 
 .rvmrc
 .rspec_status
+
+.byebug_history
