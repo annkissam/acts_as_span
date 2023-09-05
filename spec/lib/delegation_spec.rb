@@ -44,6 +44,12 @@ RSpec.describe "Span" do
   end
 
   context "InstanceMethods" do
+    it "should delegate span_to_s" do
+      expect(span_instance).to receive(:span_to_s).and_return(true)
+
+      span_model.span_to_s
+    end
+
     it "should delegate span_status" do
       expect(span_instance).to receive(:span_status).and_return(true)
 
