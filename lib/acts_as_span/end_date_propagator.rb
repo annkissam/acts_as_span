@@ -82,7 +82,7 @@ module ActsAsSpan
 
     # class-level call: enable the usage of ActsAsSpan::EndDatePropagator.call
     def self.call(object, **opts)
-      new(object, opts).call
+      new(object, **opts).call
     end
 
     def call
