@@ -1,0 +1,114 @@
+version: 2.1
+
+orbs:
+  gcp-gcr: circleci/gcp-gcr@0.12.0
+  browser-tools: circleci/browser-tools@1.2.4
+executors:
+  gcloud-executor:
+    docker:
+      - image: ericsullivan9/python-gcloud:3.7
+
+defaults: &defaults
+  working_directory: ~/app
+  docker:
+    - image: cimg/ruby:3.0.6-browsers
+      environment:
+        BUNDLER_VERSION: 2.3.8
+        DATABASE_NAME: master-fms-engine-test
+        DATABASE_USERNAME: postgres
+        DATABASE_PASSWORD: Lipeech9
+        DATABASE_HOST: 127.0.0.1
+        SECRET_TOKEN: BLAHBLAHBLAH
+  resource_class: small
+
+jobs:
+  build:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - checkout
+      - run:
+          name: Check for binding.pry
+          command: |
+            ! grep -Inr . -Ee 'binding.pry' \
+            --exclude "vendor/" \
+            --exclude "*.md" \
+            --exclude "*.yml" \
+            --include "*.rb" \
+            --include "*.haml" \
+            --include "*.erb" \
+            | grep -v "#.*binding.pry" # exclude commented lines
+      - restore_cache:
+          keys:
+            - v2-bundle-{{ checksum "Gemfile.lock" }}
+      - run:
+          name: Install bundler
+          command: gem install bundler --version $BUNDLER_VERSION
+      - run:
+          name: Bundle install
+          command: |
+            bundle check ||\
+            (bundle config set --local path 'vendor/bundle' &&\
+            bundle install --retry=3)
+      - save_cache:
+          key: v2-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - app
+
+  test:
+    <<: *defaults
+    parallelism: 50
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - run: sudo chmod 777 /usr/local/bin
+
+      - run:
+          name: Install bundler
+          command: gem install bundler --version $BUNDLER_VERSION
+      - run: bundle config set --local path 'vendor/bundle'
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
+
+            bundle exec rspec --format progress \
+                            --profile 10 \
+                            --format RspecJunitFormatter \
+                            --out /tmp/test-results/rspec.xml \
+                            --format progress \
+                            --no-fail-fast \
+                            $TEST_FILES
+
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: test-results
+
+
+workflows:
+  version: 2
+  image-tag:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only:
+                - /^v.*/
+                - /^gcp-.*/
+            branches:
+              ignore: /.*/
+  continuous_integration:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
