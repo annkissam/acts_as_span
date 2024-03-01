@@ -11,3 +11,5 @@ pkg/*
 .rspec_status
 
 .byebug_history
+
+.idea
