@@ -144,7 +144,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
 
   describe '.call' do
     subject(:result) do
-      ActsAsSpan::EndDatePropagator.call(obj, call_options)
+      ActsAsSpan::EndDatePropagator.call(obj, **call_options)
     end
     let(:obj) { base_instance }
 
@@ -153,7 +153,7 @@ RSpec.describe ActsAsSpan::EndDatePropagator do
 
       it 'forwards the correct arguments to :new' do
         expect(ActsAsSpan::EndDatePropagator)
-          .to receive(:new).with(obj, call_options).and_call_original
+          .to receive(:new).with(obj, **call_options).and_call_original
         expect(result).to eq(obj)
       end
     end
